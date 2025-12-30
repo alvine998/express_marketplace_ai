@@ -22,6 +22,9 @@ const notificationRoutes = require('./routes/notificationRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
 const shippingRoutes = require('./routes/shippingRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
+const feedRoutes = require('./routes/feedRoutes');
+const wishlistRoutes = require('./routes/wishlistRoutes');
+const chatRoutes = require('./routes/chatRoutes');
 
 const app = express();
 
@@ -82,6 +85,9 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/shipping', shippingRoutes);
 app.use('/api/payment', paymentRoutes);
+app.use('/api/feed', feedRoutes);
+app.use('/api/wishlist', wishlistRoutes);
+app.use('/api/chat', chatRoutes);
 
 app.get('/', (req, res) => {
   res.send('Marketplace AI API is running. Visit /api-docs for documentation.');

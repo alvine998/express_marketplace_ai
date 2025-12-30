@@ -20,7 +20,10 @@ This document provides a walkthrough of the implemented features and instruction
 - **Transactions**: Checkout process with stock management and order history.
 - **Shipping (RajaOngkir)**: Domestic shipping cost calculation using RajaOngkir API.
 - **Payment Gateway (Midtrans)**: Secure payment processing via Midtrans Snap and webhooks.
-- **Official Sellers (New)**: Admin-controlled "Official Store" status and verification badges.
+- **Official Sellers**: Admin-controlled "Official Store" status and verification badges.
+- **Social Feed**: User/Seller updates with image support, likes, and comments.
+- **Wishlist**: Save products for later viewing and management.
+- **Chat & FCM (New)**: Multi-device real-time chat with push notification support.
 - **Dockerization**: Ready-to-go Docker setup exposing the app on port 4050.
 
 ## Project Structure:
@@ -93,6 +96,23 @@ This document provides a walkthrough of the implemented features and instruction
 19. **Testing Official Sellers (Admin Only)**:
     - `PATCH /api/sellers/{id}/verify` to verify a seller.
     - `PATCH /api/sellers/{id}/official` to toggle official status.
+
+20. **Testing Social Feed**:
+    - `POST /api/feed` (Multipart) to create post with `content` and `image`.
+    - `GET /api/feed` to view global updates with likes/comments counts.
+    - `POST /api/feed/{postId}/like` to toggle like.
+    - `POST /api/feed/{postId}/comments` to add feedback.
+
+21. **Testing Wishlist**:
+    - `POST /api/wishlist` with `productId` to save an item.
+    - `GET /api/wishlist` to view all saved items.
+    - `DELETE /api/wishlist/{productId}` to remove.
+
+22. **Testing Chat**:
+    - `POST /api/chat/send` (Protected) with `recipientId` and `message`.
+    - `GET /api/chat/rooms` to view your conversations.
+    - `GET /api/chat/messages/{roomId}` to fetch full history.
+    - `PATCH /api/chat/read/{roomId}` to mark messages as read.
     - Note: Ensure user has `role: 'admin'` in the database.
 
 5. **Verify Security**:
