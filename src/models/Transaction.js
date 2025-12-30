@@ -21,6 +21,10 @@ const Transaction = sequelize.define('Transaction', {
     allowNull: false,
     defaultValue: 0.00,
   },
+  shippingCost: {
+    type: DataTypes.DECIMAL(10, 2),
+    defaultValue: 0.00,
+  },
   status: {
     type: DataTypes.ENUM('pending', 'completed', 'cancelled'),
     defaultValue: 'pending',

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const sellerController = require('../controllers/sellerController');
 const auth = require('../middleware/auth');
+const admin = require('../middleware/admin');
 const upload = require('../middleware/upload');
 
 /**
@@ -112,5 +113,45 @@ router.get('/:id', sellerController.getSellerById);
  *         description: Not a seller
  */
 router.put('/me', auth, upload.single('logo'), sellerController.updateProfile);
+
+/**
+ * @swagger
+ * /api/sellers/{id}/verify:
+ *   patch:
+ *     summary: Verify a seller (Admin only)
+ *     tags: [Sellers]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Seller verified
+ */
+router.patch('/:id/verify', auth, admin, sellerController.adminVerifySeller);
+
+/**
+ * @swagger
+ * /api/sellers/{id}/official:
+ *   patch:
+ *     summary: Toggle official status for a seller (Admin only)
+ *     tags: [Sellers]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Official status toggled
+ */
+router.patch('/:id/official', auth, admin, sellerController.adminToggleOfficial);
 
 module.exports = router;

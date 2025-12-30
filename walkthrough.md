@@ -17,7 +17,10 @@ This document provides a walkthrough of the implemented features and instruction
 - **Product & Seller Ratings**: User reviews and star ratings.
 - **Cart**: User shopping cart with quantity management.
 - **Notifications & FCM**: User alerts and push notification support.
-- **Transactions (New)**: Checkout process with stock management and order history.
+- **Transactions**: Checkout process with stock management and order history.
+- **Shipping (RajaOngkir)**: Domestic shipping cost calculation using RajaOngkir API.
+- **Payment Gateway (Midtrans)**: Secure payment processing via Midtrans Snap and webhooks.
+- **Official Sellers (New)**: Admin-controlled "Official Store" status and verification badges.
 - **Dockerization**: Ready-to-go Docker setup exposing the app on port 4050.
 
 ## Project Structure:
@@ -77,6 +80,20 @@ This document provides a walkthrough of the implemented features and instruction
     - `POST /api/transactions/checkout` (Protected) with `paymentMethod` and `shippingAddress`.
     - `GET /api/transactions` to view history.
     - `GET /api/transactions/{id}` to view details.
+
+17. **Testing Shipping**:
+    - `GET /api/shipping/provinces` to list provinces.
+    - `GET /api/shipping/cities/{provinceId}` to list cities.
+    - `POST /api/shipping/cost` with `origin`, `destination`, `weight`, `courier`.
+
+18. **Testing Payments**:
+    - `POST /api/payment/token/{transactionId}` (Protected) to get Snap token.
+    - `POST /api/payment/notification` (Public) to simulate Midtrans webhook.
+
+19. **Testing Official Sellers (Admin Only)**:
+    - `PATCH /api/sellers/{id}/verify` to verify a seller.
+    - `PATCH /api/sellers/{id}/official` to toggle official status.
+    - Note: Ensure user has `role: 'admin'` in the database.
 
 5. **Verify Security**:
    - Try > 20 req/min to see rate limiting.

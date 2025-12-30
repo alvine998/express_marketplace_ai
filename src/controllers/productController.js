@@ -47,7 +47,7 @@ exports.getAllProducts = async (req, res) => {
       limit: l,
       offset: offset,
       order: [['createdAt', 'DESC']],
-      include: ['subcategory']
+      include: ['subcategory', 'seller']
     });
 
     const response = getPagingData(data, page, l);

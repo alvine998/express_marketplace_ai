@@ -108,3 +108,31 @@ exports.updateProfile = async (req, res) => {
     res.status(500).json({ message: 'Server error updating seller profile' });
   }
 };
+
+exports.adminVerifySeller = async (req, res) => {
+  try {
+    const seller = await Seller.findByPk(req.params.id);
+    if (!seller) return res.status(404).json({ message: 'Seller not found' });
+
+    await seller.update({ isVerified: true });
+    await logActivity(req, 'ADMIN_VERIFY_SELLER', { sellerId: seller.id });
+
+    res.status(200).json(seller);
+  } catch (error) {
+    res.status(500).json({ message: 'Error verifying seller' });
+  }
+};
+
+exports.adminToggleOfficial = async (req, res) => {
+  try {
+    const seller = await Seller.findByPk(req.params.id);
+    if (!seller) return res.status(404).json({ message: 'Seller not found' });
+
+    await seller.update({ isOfficial: !seller.isOfficial });
+    await logActivity(req, 'ADMIN_TOGGLE_OFFICIAL_SELLER', { sellerId: seller.id, isOfficial: seller.isOfficial });
+
+    res.status(200).json(seller);
+  } catch (error) {
+    res.status(500).json({ message: 'Error toggling official status' });
+  }
+};

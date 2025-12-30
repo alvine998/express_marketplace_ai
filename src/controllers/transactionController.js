@@ -9,7 +9,7 @@ exports.checkout = async (req, res) => {
   const t = await sequelize.transaction();
   try {
     const userId = req.user.id;
-    const { paymentMethod, shippingAddress } = req.body;
+    const { paymentMethod, shippingAddress, shippingCost = 0 } = req.body;
 
     const cartItems = await CartItem.findAll({
       where: { userId },
@@ -22,9 +22,9 @@ exports.checkout = async (req, res) => {
       return res.status(400).json({ message: 'Cart is empty' });
     }
 
-    let totalAmount = 0;
+    let itemsTotal = 0;
     for (const item of cartItems) {
-      totalAmount += item.product.price * item.quantity;
+      itemsTotal += item.product.price * item.quantity;
       
       // Basic stock check
       if (item.product.stock < item.quantity) {
@@ -33,12 +33,15 @@ exports.checkout = async (req, res) => {
       }
     }
 
+    const totalAmount = parseFloat(itemsTotal) + parseFloat(shippingCost);
+
     const transaction = await Transaction.create({
       userId,
       totalAmount,
+      shippingCost,
       paymentMethod,
       shippingAddress,
-      status: 'completed', // For this demo, we assume payment is instant
+      status: 'pending', 
     }, { transaction: t });
 
     const details = cartItems.map(item => ({
