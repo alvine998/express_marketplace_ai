@@ -35,4 +35,16 @@ router.post('/token/:transactionId', auth, paymentController.getPaymentToken);
  */
 router.post('/notification', paymentController.handleNotification);
 
+/**
+ * @swagger
+ * /api/payment/methods:
+ *   get:
+ *     summary: Get available payment methods
+ *     tags: [Payment]
+ *     responses:
+ *       200:
+ *         description: List of payment methods
+ */
+router.get('/methods', paymentController.getPaymentMethods);
+
 module.exports = router;

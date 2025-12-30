@@ -3,6 +3,7 @@ const TransactionDetail = require('../models/TransactionDetail');
 const CartItem = require('../models/CartItem');
 const Product = require('../models/Product');
 const sequelize = require('../config/database');
+const { getPagination, getPagingData } = require('../utils/paginationUtils');
 const { logActivity } = require('../utils/loggingUtils');
 
 exports.checkout = async (req, res) => {
@@ -72,13 +73,21 @@ exports.checkout = async (req, res) => {
 
 exports.getTransactions = async (req, res) => {
   try {
+    const { page, limit } = req.query;
+    const { limit: l, offset } = getPagination(page, limit);
     const userId = req.user.id;
-    const transactions = await Transaction.findAll({
+
+    const data = await Transaction.findAndCountAll({
       where: { userId },
+      limit: l,
+      offset,
       include: [{ model: TransactionDetail, as: 'details', include: ['product'] }],
       order: [['createdAt', 'DESC']],
+      distinct: true,
     });
-    res.status(200).json(transactions);
+
+    const response = getPagingData(data, page, l);
+    res.status(200).json(response);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error fetching transaction history' });

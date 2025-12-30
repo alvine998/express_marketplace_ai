@@ -1,5 +1,6 @@
 const Category = require('../models/Category');
 const { uploadImageToFirebase } = require('../utils/firebaseUtils');
+const { getPagination, getPagingData } = require('../utils/paginationUtils');
 const { logActivity } = require('../utils/loggingUtils');
 
 exports.createCategory = async (req, res) => {
@@ -24,10 +25,17 @@ exports.createCategory = async (req, res) => {
 
 exports.getAllCategories = async (req, res) => {
   try {
-    const categories = await Category.findAll({
+    const { page, limit } = req.query;
+    const { limit: l, offset } = getPagination(page, limit);
+
+    const data = await Category.findAndCountAll({
+      limit: l,
+      offset,
       order: [['name', 'ASC']],
     });
-    res.status(200).json(categories);
+
+    const response = getPagingData(data, page, l);
+    res.status(200).json(response);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error fetching categories' });

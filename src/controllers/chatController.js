@@ -2,6 +2,7 @@ const ChatRoom = require('../models/ChatRoom');
 const ChatMessage = require('../models/ChatMessage');
 const User = require('../models/User');
 const { sendPushNotification } = require('../utils/fcmUtils');
+const { getPagination, getPagingData } = require('../utils/paginationUtils');
 const { logActivity } = require('../utils/loggingUtils');
 const { Op } = require('sequelize');
 
@@ -70,11 +71,16 @@ exports.sendMessage = async (req, res) => {
 
 exports.getRooms = async (req, res) => {
   try {
+    const { page, limit } = req.query;
+    const { limit: l, offset } = getPagination(page, limit);
     const userId = req.user.id;
-    const rooms = await ChatRoom.findAll({
+
+    const data = await ChatRoom.findAndCountAll({
       where: {
         [Op.or]: [{ participant1Id: userId }, { participant2Id: userId }],
       },
+      limit: l,
+      offset,
       include: [
         { model: User, as: 'participant1', attributes: ['id', 'username', 'email'] },
         { model: User, as: 'participant2', attributes: ['id', 'username', 'email'] },
@@ -82,7 +88,8 @@ exports.getRooms = async (req, res) => {
       order: [['lastMessageAt', 'DESC']],
     });
 
-    res.status(200).json(rooms);
+    const response = getPagingData(data, page, l);
+    res.status(200).json(response);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error fetching chat rooms' });

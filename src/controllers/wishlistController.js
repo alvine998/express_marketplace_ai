@@ -1,5 +1,6 @@
 const Wishlist = require('../models/Wishlist');
 const Product = require('../models/Product');
+const { getPagination, getPagingData } = require('../utils/paginationUtils');
 const { logActivity } = require('../utils/loggingUtils');
 
 exports.addToWishlist = async (req, res) => {
@@ -26,13 +27,19 @@ exports.addToWishlist = async (req, res) => {
 
 exports.getWishlist = async (req, res) => {
   try {
+    const { page, limit } = req.query;
+    const { limit: l, offset } = getPagination(page, limit);
     const userId = req.user.id;
-    const wishlist = await Wishlist.findAll({
+
+    const data = await Wishlist.findAndCountAll({
       where: { userId },
+      limit: l,
+      offset,
       include: [{ model: Product, as: 'product' }],
     });
 
-    res.status(200).json(wishlist);
+    const response = getPagingData(data, page, l);
+    res.status(200).json(response);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error fetching wishlist' });

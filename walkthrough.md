@@ -23,7 +23,8 @@ This document provides a walkthrough of the implemented features and instruction
 - **Official Sellers**: Admin-controlled "Official Store" status and verification badges.
 - **Social Feed**: User/Seller updates with image support, likes, and comments.
 - **Wishlist**: Save products for later viewing and management.
-- **Chat & FCM (New)**: Multi-device real-time chat with push notification support.
+- **Chat & FCM**: Multi-device real-time chat with push notification support.
+- **Multiple Addresses (New)**: Manage multiple shipping locations with primary address support.
 - **Dockerization**: Ready-to-go Docker setup exposing the app on port 4050.
 
 ## Project Structure:
@@ -113,6 +114,13 @@ This document provides a walkthrough of the implemented features and instruction
     - `GET /api/chat/rooms` to view your conversations.
     - `GET /api/chat/messages/{roomId}` to fetch full history.
     - `PATCH /api/chat/read/{roomId}` to mark messages as read.
+
+23. **Testing Multiple Addresses**:
+    - `POST /api/addresses` (Protected) to add a new location.
+    - `GET /api/addresses` to list all saved addresses.
+    - `PATCH /api/addresses/{id}/primary` to switch your default shipping location.
+    - `PUT /api/addresses/{id}` to update details.
+    - `DELETE /api/addresses/{id}` to remove (prevents deleting primary).
     - Note: Ensure user has `role: 'admin'` in the database.
 
 5. **Verify Security**:

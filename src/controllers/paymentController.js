@@ -62,3 +62,12 @@ exports.handleNotification = async (req, res) => {
     res.status(500).json({ message: 'Error handling payment notification' });
   }
 };
+
+exports.getPaymentMethods = async (req, res) => {
+  try {
+    const methods = await midtrans.getPaymentMethods();
+    res.status(200).json(methods);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching payment methods' });
+  }
+};

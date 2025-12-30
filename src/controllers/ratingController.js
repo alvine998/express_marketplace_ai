@@ -1,5 +1,6 @@
 const ProductRating = require('../models/ProductRating');
 const SellerRating = require('../models/SellerRating');
+const { getPagination, getPagingData } = require('../utils/paginationUtils');
 const { logActivity } = require('../utils/loggingUtils');
 
 exports.submitProductRating = async (req, res) => {
@@ -27,12 +28,20 @@ exports.submitProductRating = async (req, res) => {
 
 exports.getProductRatings = async (req, res) => {
   try {
-    const ratings = await ProductRating.findAll({
-      where: { productId: req.params.productId },
+    const { page, limit } = req.query;
+    const { limit: l, offset } = getPagination(page, limit);
+    const { productId } = req.params;
+
+    const data = await ProductRating.findAndCountAll({
+      where: { productId },
+      limit: l,
+      offset,
       include: ['user'],
       order: [['createdAt', 'DESC']],
     });
-    res.status(200).json(ratings);
+
+    const response = getPagingData(data, page, l);
+    res.status(200).json(response);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error fetching product ratings' });
@@ -64,12 +73,20 @@ exports.submitSellerRating = async (req, res) => {
 
 exports.getSellerRatings = async (req, res) => {
   try {
-    const ratings = await SellerRating.findAll({
-      where: { sellerId: req.params.sellerId },
+    const { page, limit } = req.query;
+    const { limit: l, offset } = getPagination(page, limit);
+    const { sellerId } = req.params;
+
+    const data = await SellerRating.findAndCountAll({
+      where: { sellerId },
+      limit: l,
+      offset,
       include: ['user'],
       order: [['createdAt', 'DESC']],
     });
-    res.status(200).json(ratings);
+
+    const response = getPagingData(data, page, l);
+    res.status(200).json(response);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error fetching seller ratings' });

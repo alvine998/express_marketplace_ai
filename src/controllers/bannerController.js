@@ -1,5 +1,6 @@
 const Banner = require('../models/Banner');
 const { uploadImageToFirebase } = require('../utils/firebaseUtils');
+const { getPagination, getPagingData } = require('../utils/paginationUtils');
 const { logActivity } = require('../utils/loggingUtils');
 
 exports.createBanner = async (req, res) => {
@@ -30,11 +31,18 @@ exports.createBanner = async (req, res) => {
 
 exports.getAllBanners = async (req, res) => {
   try {
-    const banners = await Banner.findAll({
+    const { page, limit } = req.query;
+    const { limit: l, offset } = getPagination(page, limit);
+
+    const data = await Banner.findAndCountAll({
       where: { isActive: true },
+      limit: l,
+      offset,
       order: [['createdAt', 'DESC']],
     });
-    res.status(200).json(banners);
+
+    const response = getPagingData(data, page, l);
+    res.status(200).json(response);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error retrieving banners' });
