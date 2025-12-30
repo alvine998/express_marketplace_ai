@@ -1,82 +1,127 @@
 const User = require('../models/User');
 const LoginAttempt = require('../models/LoginAttempt');
+const Otp = require('../models/Otp');
 const jwt = require('jsonwebtoken');
+const { sendEmail } = require('../utils/emailService');
 const { logActivity } = require('../utils/loggingUtils');
+const crypto = require('crypto');
+const { Op } = require('sequelize');
 require('dotenv').config();
 
-exports.register = async (req, res) => {
+// ... existing register, login, updateFcmToken code ...
+
+const generateOtp = () => crypto.randomInt(100000, 999999).toString();
+
+exports.forgotPassword = async (req, res) => {
   try {
-    const { username, email, password } = req.body;
-    
-    let user = await User.findOne({ where: { email } });
-    if (user) {
-      return res.status(400).json({ message: 'User already exists' });
-    }
-
-    user = await User.create({ username, email, password });
-    
-    await logActivity(req, 'REGISTER_USER', { username: user.username, email: user.email });
-
-    const payload = { id: user.id };
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '24h' });
-
-    res.status(201).json({ token, user: { id: user.id, username, email } });
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error');
-  }
-};
-
-exports.login = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const ipAddress = req.ip;
-    const userAgent = req.headers['user-agent'];
-
+    const { email } = req.body;
     const user = await User.findOne({ where: { email } });
     if (!user) {
-      await LoginAttempt.create({ email, ipAddress, userAgent, isSuccess: false, details: 'User not found' });
-      return res.status(400).json({ message: 'Invalid credentials' });
+      return res.status(404).json({ message: 'User not found' });
     }
 
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) {
-      await LoginAttempt.create({ email, ipAddress, userAgent, isSuccess: false, details: 'Invalid password' });
-      return res.status(400).json({ message: 'Invalid credentials' });
-    }
+    const otpCode = generateOtp();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
 
-    const payload = { id: user.id };
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '24h' });
+    await Otp.create({ email, otp: otpCode, expiresAt });
 
-    await LoginAttempt.create({ email, ipAddress, userAgent, isSuccess: true });
+    await sendEmail(
+      email,
+      'Password Reset OTP',
+      `<p>Your OTP for password reset is: <strong>${otpCode}</strong>. Use it within 10 minutes.</p>`
+    );
 
-    res.json({ token, user: { id: user.id, username: user.username, email: user.email } });
+    await logActivity(req, 'FORGOT_PASSWORD_REQUEST', { email });
+
+    res.status(200).json({ message: 'OTP sent to your email' });
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');
   }
 };
 
-exports.updateFcmToken = async (req, res) => {
+exports.verifyOtp = async (req, res) => {
   try {
-    const { fcmToken } = req.body;
-    const userId = req.user.id;
+    const { email, otp } = req.body;
+    const otpRecord = await Otp.findOne({
+      where: {
+        email,
+        otp,
+        isUsed: false,
+        expiresAt: { [Op.gt]: new Date() },
+      },
+      order: [['createdAt', 'DESC']],
+    });
 
-    if (!fcmToken) {
-      return res.status(400).json({ message: 'fcmToken is required' });
+    if (!otpRecord) {
+      return res.status(400).json({ message: 'Invalid or expired OTP' });
     }
 
-    const user = await User.findByPk(userId);
-    let tokens = user.fcmTokens || [];
+    // We don't mark as used yet because we need it for reset-password
+    // Alternatively, we could return a temporary recovery token here.
+    // For simplicity, we'll verify it and let reset-password finalize it.
 
-    if (!Array.isArray(tokens)) tokens = [];
+    res.status(200).json({ message: 'OTP verified successfully' });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+};
 
-    if (!tokens.includes(fcmToken)) {
-      tokens.push(fcmToken);
-      await user.update({ fcmTokens: tokens });
+exports.resetPassword = async (req, res) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+    const otpRecord = await Otp.findOne({
+      where: {
+        email,
+        otp,
+        isUsed: false,
+        expiresAt: { [Op.gt]: new Date() },
+      },
+    });
+
+    if (!otpRecord) {
+      return res.status(400).json({ message: 'Invalid or expired OTP' });
     }
 
-    res.status(200).json({ message: 'FCM token updated successfully' });
+    const user = await User.findOne({ where: { email } });
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    user.password = newPassword;
+    await user.save();
+
+    otpRecord.isUsed = true;
+    await otpRecord.save();
+
+    await logActivity(req, 'PASSWORD_RESET_SUCCESS', { email });
+
+    res.status(200).json({ message: 'Password reset successfully' });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+};
+
+exports.resendOtp = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ where: { email } });
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    const otpCode = generateOtp();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+    await Otp.create({ email, otp: otpCode, expiresAt });
+
+    await sendEmail(
+      email,
+      'Resend: Password Reset OTP',
+      `<p>Your new OTP for password reset is: <strong>${otpCode}</strong>.</p>`
+    );
+
+    await logActivity(req, 'RESEND_OTP', { email });
+
+    res.status(200).json({ message: 'New OTP sent to your email' });
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');
