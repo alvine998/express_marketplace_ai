@@ -1,8 +1,8 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const productController = require('../controllers/productController');
-const auth = require('../middleware/auth');
-const upload = require('../middleware/upload');
+const productController = require("../controllers/productController");
+const auth = require("../middleware/auth");
+const upload = require("../middleware/upload");
 
 /**
  * @swagger
@@ -27,26 +27,67 @@ const upload = require('../middleware/upload');
  *             properties:
  *               name:
  *                 type: string
+ *                 example: iPhone 15 Pro
  *               description:
  *                 type: string
+ *                 example: Latest Apple smartphone with A17 chip
  *               price:
  *                 type: number
+ *                 example: 15000000
  *               stock:
  *                 type: integer
+ *                 example: 50
  *               category:
  *                 type: string
+ *                 example: Electronics
  *               subcategoryId:
  *                 type: string
+ *                 example: 550e8400-e29b-41d4-a716-446655440000
  *               image:
  *                 type: string
  *                 format: binary
  *     responses:
  *       201:
  *         description: Product created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                   example: 550e8400-e29b-41d4-a716-446655440000
+ *                 sellerId:
+ *                   type: string
+ *                   example: 550e8400-e29b-41d4-a716-446655440001
+ *                 name:
+ *                   type: string
+ *                   example: iPhone 15 Pro
+ *                 description:
+ *                   type: string
+ *                   example: Latest Apple smartphone with A17 chip
+ *                 price:
+ *                   type: number
+ *                   example: 15000000
+ *                 stock:
+ *                   type: integer
+ *                   example: 50
+ *                 category:
+ *                   type: string
+ *                   example: Electronics
+ *                 imageUrl:
+ *                   type: string
+ *                   example: https://storage.googleapis.com/bucket/image.jpg
+ *                 createdAt:
+ *                   type: string
+ *                   format: date-time
+ *                 updatedAt:
+ *                   type: string
+ *                   format: date-time
  *       401:
  *         description: Unauthorized
  */
-router.post('/', auth, upload.single('image'), productController.createProduct);
+router.post("/", auth, upload.single("image"), productController.createProduct);
 
 /**
  * @swagger
@@ -75,11 +116,63 @@ router.post('/', auth, upload.single('image'), productController.createProduct);
  *         schema:
  *           type: string
  *         description: Filter by category name
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search by product name
  *     responses:
  *       200:
  *         description: List of products with pagination metadata
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 totalItems:
+ *                   type: integer
+ *                   example: 100
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         example: 550e8400-e29b-41d4-a716-446655440000
+ *                       name:
+ *                         type: string
+ *                         example: iPhone 15 Pro
+ *                       description:
+ *                         type: string
+ *                         example: Latest Apple smartphone
+ *                       price:
+ *                         type: number
+ *                         example: 15000000
+ *                       stock:
+ *                         type: integer
+ *                         example: 50
+ *                       category:
+ *                         type: string
+ *                         example: Electronics
+ *                       imageUrl:
+ *                         type: string
+ *                         example: https://storage.googleapis.com/bucket/image.jpg
+ *                       seller:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                           username:
+ *                             type: string
+ *                 totalPages:
+ *                   type: integer
+ *                   example: 10
+ *                 currentPage:
+ *                   type: integer
+ *                   example: 1
  */
-router.get('/', productController.getAllProducts);
+router.get("/", productController.getAllProducts);
 
 /**
  * @swagger
@@ -96,10 +189,66 @@ router.get('/', productController.getAllProducts);
  *     responses:
  *       200:
  *         description: Product details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                   example: 550e8400-e29b-41d4-a716-446655440000
+ *                 name:
+ *                   type: string
+ *                   example: iPhone 15 Pro
+ *                 description:
+ *                   type: string
+ *                   example: Latest Apple smartphone with A17 chip
+ *                 price:
+ *                   type: number
+ *                   example: 15000000
+ *                 stock:
+ *                   type: integer
+ *                   example: 50
+ *                 category:
+ *                   type: string
+ *                   example: Electronics
+ *                 imageUrl:
+ *                   type: string
+ *                   example: https://storage.googleapis.com/bucket/image.jpg
+ *                 seller:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                     username:
+ *                       type: string
+ *                     email:
+ *                       type: string
+ *                 subcategory:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                     name:
+ *                       type: string
+ *                 createdAt:
+ *                   type: string
+ *                   format: date-time
+ *                 updatedAt:
+ *                   type: string
+ *                   format: date-time
  *       404:
  *         description: Product not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Product not found
  */
-router.get('/:id', productController.getProductById);
+router.get("/:id", productController.getProductById);
 
 /**
  * @swagger
@@ -124,26 +273,62 @@ router.get('/:id', productController.getProductById);
  *             properties:
  *               name:
  *                 type: string
+ *                 example: iPhone 15 Pro Max
  *               description:
  *                 type: string
+ *                 example: Updated description
  *               price:
  *                 type: number
+ *                 example: 18000000
  *               stock:
  *                 type: integer
+ *                 example: 30
  *               category:
  *                 type: string
+ *                 example: Electronics
  *               image:
  *                 type: string
  *                 format: binary
  *     responses:
  *       200:
  *         description: Product updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                   example: 550e8400-e29b-41d4-a716-446655440000
+ *                 name:
+ *                   type: string
+ *                   example: iPhone 15 Pro Max
+ *                 description:
+ *                   type: string
+ *                   example: Updated description
+ *                 price:
+ *                   type: number
+ *                   example: 18000000
+ *                 stock:
+ *                   type: integer
+ *                   example: 30
+ *                 imageUrl:
+ *                   type: string
+ *                   example: https://storage.googleapis.com/bucket/image.jpg
+ *                 updatedAt:
+ *                   type: string
+ *                   format: date-time
  *       403:
- *         description: Forbidden
+ *         description: Forbidden - Not authorized to update this product
  *       404:
  *         description: Product not found
  */
-router.put('/:id', auth, upload.single('image'), productController.updateProduct);
+router.put(
+  "/:id",
+  auth,
+  upload.single("image"),
+  productController.updateProduct
+);
 
 /**
  * @swagger
@@ -162,11 +347,19 @@ router.put('/:id', auth, upload.single('image'), productController.updateProduct
  *     responses:
  *       200:
  *         description: Product deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Product deleted successfully
  *       403:
- *         description: Forbidden
+ *         description: Forbidden - Not authorized to delete this product
  *       404:
  *         description: Product not found
  */
-router.delete('/:id', auth, productController.deleteProduct);
+router.delete("/:id", auth, productController.deleteProduct);
 
 module.exports = router;

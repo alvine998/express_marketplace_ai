@@ -1,9 +1,9 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const sellerController = require('../controllers/sellerController');
-const auth = require('../middleware/auth');
-const admin = require('../middleware/admin');
-const upload = require('../middleware/upload');
+const sellerController = require("../controllers/sellerController");
+const auth = require("../middleware/auth");
+const admin = require("../middleware/admin");
+const upload = require("../middleware/upload");
 
 /**
  * @swagger
@@ -24,22 +24,62 @@ const upload = require('../middleware/upload');
  *             properties:
  *               storeName:
  *                 type: string
+ *                 example: Tech Store
  *               description:
  *                 type: string
+ *                 example: Best electronics store in town
  *               address:
  *                 type: string
+ *                 example: Jl. Sudirman No. 123, Jakarta
  *               logo:
  *                 type: string
  *                 format: binary
  *     responses:
  *       201:
  *         description: Seller registered successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                   example: 550e8400-e29b-41d4-a716-446655440000
+ *                 userId:
+ *                   type: string
+ *                   example: 550e8400-e29b-41d4-a716-446655440001
+ *                 storeName:
+ *                   type: string
+ *                   example: Tech Store
+ *                 description:
+ *                   type: string
+ *                   example: Best electronics store in town
+ *                 address:
+ *                   type: string
+ *                   example: Jl. Sudirman No. 123, Jakarta
+ *                 logoUrl:
+ *                   type: string
+ *                   example: https://storage.googleapis.com/bucket/logo.jpg
+ *                 isVerified:
+ *                   type: boolean
+ *                   example: false
+ *                 isOfficial:
+ *                   type: boolean
+ *                   example: false
+ *                 createdAt:
+ *                   type: string
+ *                   format: date-time
  *       400:
  *         description: Already a seller or store name taken
  *       401:
  *         description: Unauthorized
  */
-router.post('/register', auth, upload.single('logo'), sellerController.becomeSeller);
+router.post(
+  "/register",
+  auth,
+  upload.single("logo"),
+  sellerController.becomeSeller
+);
 
 /**
  * @swagger
@@ -52,12 +92,44 @@ router.post('/register', auth, upload.single('logo'), sellerController.becomeSel
  *     responses:
  *       200:
  *         description: Seller profile retrieved
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                   example: 550e8400-e29b-41d4-a716-446655440000
+ *                 storeName:
+ *                   type: string
+ *                   example: Tech Store
+ *                 description:
+ *                   type: string
+ *                   example: Best electronics store in town
+ *                 address:
+ *                   type: string
+ *                   example: Jl. Sudirman No. 123, Jakarta
+ *                 logoUrl:
+ *                   type: string
+ *                   example: https://storage.googleapis.com/bucket/logo.jpg
+ *                 isVerified:
+ *                   type: boolean
+ *                   example: true
+ *                 isOfficial:
+ *                   type: boolean
+ *                   example: false
+ *                 rating:
+ *                   type: number
+ *                   example: 4.5
+ *                 totalProducts:
+ *                   type: integer
+ *                   example: 25
  *       404:
  *         description: Not a seller
  *       401:
  *         description: Unauthorized
  */
-router.get('/me', auth, sellerController.getOwnProfile);
+router.get("/me", auth, sellerController.getOwnProfile);
 
 /**
  * @swagger
@@ -74,10 +146,43 @@ router.get('/me', auth, sellerController.getOwnProfile);
  *     responses:
  *       200:
  *         description: Seller profile retrieved
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                   example: 550e8400-e29b-41d4-a716-446655440000
+ *                 storeName:
+ *                   type: string
+ *                   example: Tech Store
+ *                 description:
+ *                   type: string
+ *                   example: Best electronics store in town
+ *                 logoUrl:
+ *                   type: string
+ *                   example: https://storage.googleapis.com/bucket/logo.jpg
+ *                 isVerified:
+ *                   type: boolean
+ *                   example: true
+ *                 isOfficial:
+ *                   type: boolean
+ *                   example: false
+ *                 rating:
+ *                   type: number
+ *                   example: 4.5
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                     username:
+ *                       type: string
  *       404:
  *         description: Seller not found
  */
-router.get('/:id', sellerController.getSellerById);
+router.get("/:id", sellerController.getSellerById);
 
 /**
  * @swagger
@@ -95,16 +200,42 @@ router.get('/:id', sellerController.getSellerById);
  *             properties:
  *               storeName:
  *                 type: string
+ *                 example: Updated Tech Store
  *               description:
  *                 type: string
+ *                 example: Updated description
  *               address:
  *                 type: string
+ *                 example: New address
  *               logo:
  *                 type: string
  *                 format: binary
  *     responses:
  *       200:
  *         description: Seller profile updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                   example: 550e8400-e29b-41d4-a716-446655440000
+ *                 storeName:
+ *                   type: string
+ *                   example: Updated Tech Store
+ *                 description:
+ *                   type: string
+ *                   example: Updated description
+ *                 address:
+ *                   type: string
+ *                   example: New address
+ *                 logoUrl:
+ *                   type: string
+ *                   example: https://storage.googleapis.com/bucket/logo.jpg
+ *                 updatedAt:
+ *                   type: string
+ *                   format: date-time
  *       400:
  *         description: Store name taken
  *       401:
@@ -112,7 +243,7 @@ router.get('/:id', sellerController.getSellerById);
  *       404:
  *         description: Not a seller
  */
-router.put('/me', auth, upload.single('logo'), sellerController.updateProfile);
+router.put("/me", auth, upload.single("logo"), sellerController.updateProfile);
 
 /**
  * @swagger
@@ -130,9 +261,33 @@ router.put('/me', auth, upload.single('logo'), sellerController.updateProfile);
  *           type: string
  *     responses:
  *       200:
- *         description: Seller verified
+ *         description: Seller verified successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Seller verified successfully
+ *                 seller:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                     storeName:
+ *                       type: string
+ *                     isVerified:
+ *                       type: boolean
+ *                       example: true
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin only
+ *       404:
+ *         description: Seller not found
  */
-router.patch('/:id/verify', auth, admin, sellerController.adminVerifySeller);
+router.patch("/:id/verify", auth, admin, sellerController.adminVerifySeller);
 
 /**
  * @swagger
@@ -151,7 +306,36 @@ router.patch('/:id/verify', auth, admin, sellerController.adminVerifySeller);
  *     responses:
  *       200:
  *         description: Official status toggled
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Official status updated
+ *                 seller:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                     storeName:
+ *                       type: string
+ *                     isOfficial:
+ *                       type: boolean
+ *                       example: true
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin only
+ *       404:
+ *         description: Seller not found
  */
-router.patch('/:id/official', auth, admin, sellerController.adminToggleOfficial);
+router.patch(
+  "/:id/official",
+  auth,
+  admin,
+  sellerController.adminToggleOfficial
+);
 
 module.exports = router;

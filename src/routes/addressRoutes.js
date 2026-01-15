@@ -1,7 +1,7 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const addressController = require('../controllers/addressController');
-const auth = require('../middleware/auth');
+const addressController = require("../controllers/addressController");
+const auth = require("../middleware/auth");
 
 /**
  * @swagger
@@ -30,29 +30,79 @@ const auth = require('../middleware/auth');
  *             properties:
  *               label:
  *                 type: string
+ *                 example: Home
  *               receiverName:
  *                 type: string
+ *                 example: John Doe
  *               phoneNumber:
  *                 type: string
+ *                 example: "081234567890"
  *               provinceId:
  *                 type: string
+ *                 example: "11"
  *               province:
  *                 type: string
+ *                 example: DKI Jakarta
  *               cityId:
  *                 type: string
+ *                 example: "151"
  *               city:
  *                 type: string
+ *                 example: Jakarta Selatan
  *               district:
  *                 type: string
+ *                 example: Kebayoran Baru
  *               fullAddress:
  *                 type: string
+ *                 example: Jl. Senopati No. 45, RT 05/RW 03
  *               isPrimary:
  *                 type: boolean
+ *                 example: true
  *     responses:
  *       201:
- *         description: Address created
+ *         description: Address created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                   example: 550e8400-e29b-41d4-a716-446655440000
+ *                 userId:
+ *                   type: string
+ *                   example: 550e8400-e29b-41d4-a716-446655440001
+ *                 label:
+ *                   type: string
+ *                   example: Home
+ *                 receiverName:
+ *                   type: string
+ *                   example: John Doe
+ *                 phoneNumber:
+ *                   type: string
+ *                   example: "081234567890"
+ *                 province:
+ *                   type: string
+ *                   example: DKI Jakarta
+ *                 city:
+ *                   type: string
+ *                   example: Jakarta Selatan
+ *                 district:
+ *                   type: string
+ *                   example: Kebayoran Baru
+ *                 fullAddress:
+ *                   type: string
+ *                   example: Jl. Senopati No. 45, RT 05/RW 03
+ *                 isPrimary:
+ *                   type: boolean
+ *                   example: true
+ *                 createdAt:
+ *                   type: string
+ *                   format: date-time
+ *       401:
+ *         description: Unauthorized
  */
-router.post('/', auth, addressController.addAddress);
+router.post("/", auth, addressController.addAddress);
 
 /**
  * @swagger
@@ -65,8 +115,44 @@ router.post('/', auth, addressController.addAddress);
  *     responses:
  *       200:
  *         description: List of addresses
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: string
+ *                     example: 550e8400-e29b-41d4-a716-446655440000
+ *                   label:
+ *                     type: string
+ *                     example: Home
+ *                   receiverName:
+ *                     type: string
+ *                     example: John Doe
+ *                   phoneNumber:
+ *                     type: string
+ *                     example: "081234567890"
+ *                   province:
+ *                     type: string
+ *                     example: DKI Jakarta
+ *                   city:
+ *                     type: string
+ *                     example: Jakarta Selatan
+ *                   district:
+ *                     type: string
+ *                     example: Kebayoran Baru
+ *                   fullAddress:
+ *                     type: string
+ *                     example: Jl. Senopati No. 45, RT 05/RW 03
+ *                   isPrimary:
+ *                     type: boolean
+ *                     example: true
+ *       401:
+ *         description: Unauthorized
  */
-router.get('/', auth, addressController.getAddresses);
+router.get("/", auth, addressController.getAddresses);
 
 /**
  * @swagger
@@ -90,29 +176,63 @@ router.get('/', auth, addressController.getAddresses);
  *             properties:
  *               label:
  *                 type: string
+ *                 example: Office
  *               receiverName:
  *                 type: string
+ *                 example: John Doe
  *               phoneNumber:
  *                 type: string
+ *                 example: "081234567890"
  *               provinceId:
  *                 type: string
+ *                 example: "11"
  *               province:
  *                 type: string
+ *                 example: DKI Jakarta
  *               cityId:
  *                 type: string
+ *                 example: "151"
  *               city:
  *                 type: string
+ *                 example: Jakarta Selatan
  *               district:
  *                 type: string
+ *                 example: Setiabudi
  *               fullAddress:
  *                 type: string
+ *                 example: Jl. HR Rasuna Said No. 100
  *               isPrimary:
  *                 type: boolean
+ *                 example: false
  *     responses:
  *       200:
- *         description: Address updated
+ *         description: Address updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                   example: 550e8400-e29b-41d4-a716-446655440000
+ *                 label:
+ *                   type: string
+ *                   example: Office
+ *                 receiverName:
+ *                   type: string
+ *                   example: John Doe
+ *                 fullAddress:
+ *                   type: string
+ *                   example: Jl. HR Rasuna Said No. 100
+ *                 updatedAt:
+ *                   type: string
+ *                   format: date-time
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Address not found
  */
-router.put('/:id', auth, addressController.updateAddress);
+router.put("/:id", auth, addressController.updateAddress);
 
 /**
  * @swagger
@@ -131,8 +251,30 @@ router.put('/:id', auth, addressController.updateAddress);
  *     responses:
  *       200:
  *         description: Primary address updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Primary address updated
+ *                 address:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                     label:
+ *                       type: string
+ *                     isPrimary:
+ *                       type: boolean
+ *                       example: true
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Address not found
  */
-router.patch('/:id/primary', auth, addressController.setPrimary);
+router.patch("/:id/primary", auth, addressController.setPrimary);
 
 /**
  * @swagger
@@ -150,8 +292,20 @@ router.patch('/:id/primary', auth, addressController.setPrimary);
  *           type: string
  *     responses:
  *       200:
- *         description: Address deleted
+ *         description: Address deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Address deleted successfully
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Address not found
  */
-router.delete('/:id', auth, addressController.deleteAddress);
+router.delete("/:id", auth, addressController.deleteAddress);
 
 module.exports = router;

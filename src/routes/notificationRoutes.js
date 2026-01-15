@@ -1,7 +1,7 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const notificationController = require('../controllers/notificationController');
-const auth = require('../middleware/auth');
+const notificationController = require("../controllers/notificationController");
+const auth = require("../middleware/auth");
 
 /**
  * @swagger
@@ -16,15 +16,59 @@ const auth = require('../middleware/auth');
  *         name: page
  *         schema:
  *           type: integer
+ *         description: Page number
  *       - in: query
  *         name: limit
  *         schema:
  *           type: integer
+ *         description: Items per page
  *     responses:
  *       200:
  *         description: List of notifications
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 totalItems:
+ *                   type: integer
+ *                   example: 15
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         example: 550e8400-e29b-41d4-a716-446655440000
+ *                       userId:
+ *                         type: string
+ *                         example: 550e8400-e29b-41d4-a716-446655440001
+ *                       title:
+ *                         type: string
+ *                         example: Order Shipped
+ *                       message:
+ *                         type: string
+ *                         example: Your order #12345 has been shipped
+ *                       type:
+ *                         type: string
+ *                         example: order
+ *                       isRead:
+ *                         type: boolean
+ *                         example: false
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                 totalPages:
+ *                   type: integer
+ *                   example: 2
+ *                 currentPage:
+ *                   type: integer
+ *                   example: 1
+ *       401:
+ *         description: Unauthorized
  */
-router.get('/', auth, notificationController.getNotifications);
+router.get("/", auth, notificationController.getNotifications);
 
 /**
  * @swagger
@@ -42,9 +86,27 @@ router.get('/', auth, notificationController.getNotifications);
  *           type: string
  *     responses:
  *       200:
- *         description: Notification updated
+ *         description: Notification marked as read
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                   example: 550e8400-e29b-41d4-a716-446655440000
+ *                 isRead:
+ *                   type: boolean
+ *                   example: true
+ *                 updatedAt:
+ *                   type: string
+ *                   format: date-time
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Notification not found
  */
-router.patch('/:id/read', auth, notificationController.markAsRead);
+router.patch("/:id/read", auth, notificationController.markAsRead);
 
 /**
  * @swagger
@@ -62,8 +124,20 @@ router.patch('/:id/read', auth, notificationController.markAsRead);
  *           type: string
  *     responses:
  *       200:
- *         description: Notification deleted
+ *         description: Notification deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Notification deleted successfully
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Notification not found
  */
-router.delete('/:id', auth, notificationController.deleteNotification);
+router.delete("/:id", auth, notificationController.deleteNotification);
 
 module.exports = router;

@@ -1,7 +1,7 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const subcategoryController = require('../controllers/subcategoryController');
-const auth = require('../middleware/auth');
+const subcategoryController = require("../controllers/subcategoryController");
+const auth = require("../middleware/auth");
 
 /**
  * @swagger
@@ -23,13 +23,39 @@ const auth = require('../middleware/auth');
  *             properties:
  *               categoryId:
  *                 type: string
+ *                 example: 550e8400-e29b-41d4-a716-446655440000
  *               name:
  *                 type: string
+ *                 example: Smartphones
  *     responses:
  *       201:
- *         description: Subcategory created
+ *         description: Subcategory created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                   example: 550e8400-e29b-41d4-a716-446655440001
+ *                 categoryId:
+ *                   type: string
+ *                   example: 550e8400-e29b-41d4-a716-446655440000
+ *                 name:
+ *                   type: string
+ *                   example: Smartphones
+ *                 createdAt:
+ *                   type: string
+ *                   format: date-time
+ *                 updatedAt:
+ *                   type: string
+ *                   format: date-time
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Error creating subcategory
  */
-router.post('/', auth, subcategoryController.createSubcategory);
+router.post("/", auth, subcategoryController.createSubcategory);
 
 /**
  * @swagger
@@ -46,7 +72,34 @@ router.post('/', auth, subcategoryController.createSubcategory);
  *     responses:
  *       200:
  *         description: List of subcategories
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: string
+ *                     example: 550e8400-e29b-41d4-a716-446655440001
+ *                   categoryId:
+ *                     type: string
+ *                     example: 550e8400-e29b-41d4-a716-446655440000
+ *                   name:
+ *                     type: string
+ *                     example: Smartphones
+ *                   createdAt:
+ *                     type: string
+ *                     format: date-time
+ *                   updatedAt:
+ *                     type: string
+ *                     format: date-time
+ *       500:
+ *         description: Error fetching subcategories
  */
-router.get('/category/:categoryId', subcategoryController.getSubcategoriesByCategory);
+router.get(
+  "/category/:categoryId",
+  subcategoryController.getSubcategoriesByCategory
+);
 
 module.exports = router;
