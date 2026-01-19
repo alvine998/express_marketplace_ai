@@ -1,8 +1,8 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const feedController = require('../controllers/feedController');
-const auth = require('../middleware/auth');
-const upload = require('../middleware/upload');
+const feedController = require("../controllers/feedController");
+const auth = require("../middleware/auth");
+const upload = require("../middleware/upload");
 
 /**
  * @swagger
@@ -22,14 +22,43 @@ const upload = require('../middleware/upload');
  *             properties:
  *               content:
  *                 type: string
+ *                 example: Check out our new summer collection!
  *               image:
  *                 type: string
  *                 format: binary
  *     responses:
  *       201:
  *         description: Post created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                   example: 550e8400-e29b-41d4-a716-446655440000
+ *                 userId:
+ *                   type: string
+ *                   example: 550e8400-e29b-41d4-a716-446655440001
+ *                 content:
+ *                   type: string
+ *                   example: Check out our new summer collection!
+ *                 imageUrl:
+ *                   type: string
+ *                   example: https://storage.googleapis.com/bucket/feed.jpg
+ *                 likesCount:
+ *                   type: integer
+ *                   example: 0
+ *                 commentsCount:
+ *                   type: integer
+ *                   example: 0
+ *                 createdAt:
+ *                   type: string
+ *                   format: date-time
+ *       401:
+ *         description: Unauthorized
  */
-router.post('/', auth, upload.single('image'), feedController.createPost);
+router.post("/", auth, upload.single("image"), feedController.createPost);
 
 /**
  * @swagger
@@ -42,15 +71,62 @@ router.post('/', auth, upload.single('image'), feedController.createPost);
  *         name: page
  *         schema:
  *           type: integer
+ *         description: Page number
  *       - in: query
  *         name: limit
  *         schema:
  *           type: integer
+ *         description: Items per page
  *     responses:
  *       200:
  *         description: List of posts
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 totalItems:
+ *                   type: integer
+ *                   example: 50
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         example: 550e8400-e29b-41d4-a716-446655440000
+ *                       content:
+ *                         type: string
+ *                         example: Check out our new summer collection!
+ *                       imageUrl:
+ *                         type: string
+ *                         example: https://storage.googleapis.com/bucket/feed.jpg
+ *                       likesCount:
+ *                         type: integer
+ *                         example: 25
+ *                       commentsCount:
+ *                         type: integer
+ *                         example: 10
+ *                       user:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                           username:
+ *                             type: string
+ *                             example: techstore
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                 totalPages:
+ *                   type: integer
+ *                   example: 5
+ *                 currentPage:
+ *                   type: integer
+ *                   example: 1
  */
-router.get('/', feedController.getAllPosts);
+router.get("/", feedController.getAllPosts);
 
 /**
  * @swagger
@@ -68,9 +144,27 @@ router.get('/', feedController.getAllPosts);
  *           type: string
  *     responses:
  *       200:
- *         description: Status changed
+ *         description: Like status toggled
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Post liked
+ *                 isLiked:
+ *                   type: boolean
+ *                   example: true
+ *                 likesCount:
+ *                   type: integer
+ *                   example: 26
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Post not found
  */
-router.post('/:postId/like', auth, feedController.toggleLike);
+router.post("/:postId/like", auth, feedController.toggleLike);
 
 /**
  * @swagger
@@ -97,11 +191,36 @@ router.post('/:postId/like', auth, feedController.toggleLike);
  *             properties:
  *               content:
  *                 type: string
+ *                 example: Great collection! Love it!
  *     responses:
  *       201:
  *         description: Comment added
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                   example: 550e8400-e29b-41d4-a716-446655440000
+ *                 postId:
+ *                   type: string
+ *                   example: 550e8400-e29b-41d4-a716-446655440001
+ *                 userId:
+ *                   type: string
+ *                   example: 550e8400-e29b-41d4-a716-446655440002
+ *                 content:
+ *                   type: string
+ *                   example: Great collection! Love it!
+ *                 createdAt:
+ *                   type: string
+ *                   format: date-time
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Post not found
  */
-router.post('/:postId/comments', auth, feedController.addComment);
+router.post("/:postId/comments", auth, feedController.addComment);
 
 /**
  * @swagger
@@ -120,7 +239,21 @@ router.post('/:postId/comments', auth, feedController.addComment);
  *     responses:
  *       200:
  *         description: Post deleted
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Post deleted successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Not your post
+ *       404:
+ *         description: Post not found
  */
-router.delete('/:id', auth, feedController.deletePost);
+router.delete("/:id", auth, feedController.deletePost);
 
 module.exports = router;

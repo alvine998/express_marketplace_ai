@@ -1,6 +1,6 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const otpController = require('../controllers/otpController');
+const otpController = require("../controllers/otpController");
 
 /**
  * @swagger
@@ -19,13 +19,33 @@ const otpController = require('../controllers/otpController');
  *             properties:
  *               email:
  *                 type: string
+ *                 example: user@example.com
  *     responses:
  *       200:
  *         description: OTP sent successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: OTP sent successfully
+ *                 expiresIn:
+ *                   type: integer
+ *                   example: 300
  *       400:
  *         description: Email is required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Email is required
  */
-router.post('/send', otpController.sendOtp);
+router.post("/send", otpController.sendOtp);
 
 /**
  * @swagger
@@ -45,14 +65,35 @@ router.post('/send', otpController.sendOtp);
  *             properties:
  *               email:
  *                 type: string
+ *                 example: user@example.com
  *               otp:
  *                 type: string
+ *                 example: "123456"
  *     responses:
  *       200:
  *         description: OTP verified successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: OTP verified successfully
+ *                 verified:
+ *                   type: boolean
+ *                   example: true
  *       400:
  *         description: Invalid or expired OTP
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Invalid or expired OTP
  */
-router.post('/verify', otpController.verifyOtp);
+router.post("/verify", otpController.verifyOtp);
 
 module.exports = router;

@@ -22,15 +22,74 @@ const auth = require("../middleware/auth");
  *             properties:
  *               username:
  *                 type: string
+ *                 example: johndoe
+ *               name:
+ *                 type: string
+ *                 example: John Doe
  *               email:
  *                 type: string
+ *                 example: johndoe@email.com
  *               password:
  *                 type: string
+ *                 example: password123
+ *               phone:
+ *                 type: string
+ *                 example: "081234567890"
+ *               gender:
+ *                 type: string
+ *                 enum: [male, female, other]
+ *                 example: male
+ *               address:
+ *                 type: string
+ *                 example: Jl. Contoh No. 123, Jakarta
  *     responses:
  *       201:
  *         description: User registered successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: User registered successfully
+ *                 token:
+ *                   type: string
+ *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       example: 550e8400-e29b-41d4-a716-446655440000
+ *                     username:
+ *                       type: string
+ *                       example: johndoe
+ *                     name:
+ *                       type: string
+ *                       example: John Doe
+ *                     email:
+ *                       type: string
+ *                       example: johndoe@email.com
+ *                     phone:
+ *                       type: string
+ *                       example: "081234567890"
+ *                     gender:
+ *                       type: string
+ *                       example: male
+ *                     address:
+ *                       type: string
+ *                       example: Jl. Contoh No. 123, Jakarta
  *       400:
  *         description: User already exists
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: User already exists with this email
  */
 router.post("/register", authController.register);
 
@@ -82,9 +141,15 @@ router.post("/register", authController.register);
  *                     email:
  *                       type: string
  *                       example: user@example.com
+ *                     name:
+ *                       type: string
+ *                       example: John Doe
  *                     phone:
  *                       type: string
  *                       example: "081234567890"
+ *                     gender:
+ *                       type: string
+ *                       example: male
  *                     address:
  *                       type: string
  *                       example: Jl. Contoh No. 123

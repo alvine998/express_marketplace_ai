@@ -10,7 +10,8 @@ require("dotenv").config();
 // Register a new user
 exports.register = async (req, res) => {
   try {
-    const { username, email, password, phone, address } = req.body;
+    const { username, name, email, password, phone, gender, address } =
+      req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ where: { email } });
@@ -23,9 +24,11 @@ exports.register = async (req, res) => {
     // Create new user
     const user = await User.create({
       username,
+      name,
       email,
       password,
       phone,
+      gender,
       address,
     });
 
@@ -33,7 +36,7 @@ exports.register = async (req, res) => {
     const token = jwt.sign(
       { id: user.id, email: user.email },
       process.env.JWT_SECRET,
-      { expiresIn: "7d" }
+      { expiresIn: "7d" },
     );
 
     await logActivity(req, "USER_REGISTER", { userId: user.id, email });
@@ -44,8 +47,10 @@ exports.register = async (req, res) => {
       user: {
         id: user.id,
         username: user.username,
+        name: user.name,
         email: user.email,
         phone: user.phone,
+        gender: user.gender,
         address: user.address,
       },
     });
@@ -89,7 +94,7 @@ exports.login = async (req, res) => {
     const token = jwt.sign(
       { id: user.id, email: user.email },
       process.env.JWT_SECRET,
-      { expiresIn: "7d" }
+      { expiresIn: "7d" },
     );
 
     await logActivity(req, "USER_LOGIN", { userId: user.id, email });
@@ -100,8 +105,10 @@ exports.login = async (req, res) => {
       user: {
         id: user.id,
         username: user.username,
+        name: user.name,
         email: user.email,
         phone: user.phone,
+        gender: user.gender,
         address: user.address,
       },
     });

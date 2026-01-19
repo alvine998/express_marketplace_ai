@@ -1,7 +1,7 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const ratingController = require('../controllers/ratingController');
-const auth = require('../middleware/auth');
+const ratingController = require("../controllers/ratingController");
+const auth = require("../middleware/auth");
 
 /**
  * @swagger
@@ -23,17 +23,47 @@ const auth = require('../middleware/auth');
  *             properties:
  *               productId:
  *                 type: string
+ *                 example: 550e8400-e29b-41d4-a716-446655440000
  *               rating:
  *                 type: integer
  *                 minimum: 1
  *                 maximum: 5
+ *                 example: 5
  *               comment:
  *                 type: string
+ *                 example: Excellent product, fast delivery!
  *     responses:
  *       200:
  *         description: Rating submitted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                   example: 550e8400-e29b-41d4-a716-446655440001
+ *                 userId:
+ *                   type: string
+ *                   example: 550e8400-e29b-41d4-a716-446655440002
+ *                 productId:
+ *                   type: string
+ *                   example: 550e8400-e29b-41d4-a716-446655440000
+ *                 rating:
+ *                   type: integer
+ *                   example: 5
+ *                 comment:
+ *                   type: string
+ *                   example: Excellent product, fast delivery!
+ *                 createdAt:
+ *                   type: string
+ *                   format: date-time
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Product not found
  */
-router.post('/product', auth, ratingController.submitProductRating);
+router.post("/product", auth, ratingController.submitProductRating);
 
 /**
  * @swagger
@@ -50,8 +80,46 @@ router.post('/product', auth, ratingController.submitProductRating);
  *     responses:
  *       200:
  *         description: List of ratings
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 averageRating:
+ *                   type: number
+ *                   example: 4.5
+ *                 totalRatings:
+ *                   type: integer
+ *                   example: 120
+ *                 ratings:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         example: 550e8400-e29b-41d4-a716-446655440000
+ *                       rating:
+ *                         type: integer
+ *                         example: 5
+ *                       comment:
+ *                         type: string
+ *                         example: Excellent product!
+ *                       user:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                           username:
+ *                             type: string
+ *                             example: johndoe
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *       404:
+ *         description: Product not found
  */
-router.get('/product/:productId', ratingController.getProductRatings);
+router.get("/product/:productId", ratingController.getProductRatings);
 
 /**
  * @swagger
@@ -73,17 +141,47 @@ router.get('/product/:productId', ratingController.getProductRatings);
  *             properties:
  *               sellerId:
  *                 type: string
+ *                 example: 550e8400-e29b-41d4-a716-446655440000
  *               rating:
  *                 type: integer
  *                 minimum: 1
  *                 maximum: 5
+ *                 example: 4
  *               comment:
  *                 type: string
+ *                 example: Great seller, responsive and friendly!
  *     responses:
  *       200:
  *         description: Rating submitted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                   example: 550e8400-e29b-41d4-a716-446655440001
+ *                 userId:
+ *                   type: string
+ *                   example: 550e8400-e29b-41d4-a716-446655440002
+ *                 sellerId:
+ *                   type: string
+ *                   example: 550e8400-e29b-41d4-a716-446655440000
+ *                 rating:
+ *                   type: integer
+ *                   example: 4
+ *                 comment:
+ *                   type: string
+ *                   example: Great seller, responsive and friendly!
+ *                 createdAt:
+ *                   type: string
+ *                   format: date-time
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Seller not found
  */
-router.post('/seller', auth, ratingController.submitSellerRating);
+router.post("/seller", auth, ratingController.submitSellerRating);
 
 /**
  * @swagger
@@ -100,7 +198,45 @@ router.post('/seller', auth, ratingController.submitSellerRating);
  *     responses:
  *       200:
  *         description: List of ratings
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 averageRating:
+ *                   type: number
+ *                   example: 4.8
+ *                 totalRatings:
+ *                   type: integer
+ *                   example: 85
+ *                 ratings:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         example: 550e8400-e29b-41d4-a716-446655440000
+ *                       rating:
+ *                         type: integer
+ *                         example: 5
+ *                       comment:
+ *                         type: string
+ *                         example: Best seller in the marketplace!
+ *                       user:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                           username:
+ *                             type: string
+ *                             example: buyer123
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *       404:
+ *         description: Seller not found
  */
-router.get('/seller/:sellerId', ratingController.getSellerRatings);
+router.get("/seller/:sellerId", ratingController.getSellerRatings);
 
 module.exports = router;

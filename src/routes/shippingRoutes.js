@@ -1,6 +1,6 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const shippingController = require('../controllers/shippingController');
+const shippingController = require("../controllers/shippingController");
 
 /**
  * @swagger
@@ -11,8 +11,21 @@ const shippingController = require('../controllers/shippingController');
  *     responses:
  *       200:
  *         description: List of provinces
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   province_id:
+ *                     type: string
+ *                     example: "11"
+ *                   province:
+ *                     type: string
+ *                     example: DKI Jakarta
  */
-router.get('/provinces', shippingController.getProvinces);
+router.get("/provinces", shippingController.getProvinces);
 
 /**
  * @swagger
@@ -29,8 +42,33 @@ router.get('/provinces', shippingController.getProvinces);
  *     responses:
  *       200:
  *         description: List of cities
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   city_id:
+ *                     type: string
+ *                     example: "151"
+ *                   province_id:
+ *                     type: string
+ *                     example: "11"
+ *                   province:
+ *                     type: string
+ *                     example: DKI Jakarta
+ *                   type:
+ *                     type: string
+ *                     example: Kota
+ *                   city_name:
+ *                     type: string
+ *                     example: Jakarta Selatan
+ *                   postal_code:
+ *                     type: string
+ *                     example: "12230"
  */
-router.get('/cities/:provinceId', shippingController.getCities);
+router.get("/cities/:provinceId", shippingController.getCities);
 
 /**
  * @swagger
@@ -52,16 +90,58 @@ router.get('/cities/:provinceId', shippingController.getCities);
  *             properties:
  *               origin:
  *                 type: string
+ *                 example: "151"
  *               destination:
  *                 type: string
+ *                 example: "444"
  *               weight:
  *                 type: integer
+ *                 example: 1000
  *               courier:
  *                 type: string
+ *                 example: jne
  *     responses:
  *       200:
  *         description: Shipping cost results
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 origin:
+ *                   type: object
+ *                   properties:
+ *                     city_id:
+ *                       type: string
+ *                     city_name:
+ *                       type: string
+ *                       example: Jakarta Selatan
+ *                 destination:
+ *                   type: object
+ *                   properties:
+ *                     city_id:
+ *                       type: string
+ *                     city_name:
+ *                       type: string
+ *                       example: Surabaya
+ *                 costs:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       service:
+ *                         type: string
+ *                         example: REG
+ *                       description:
+ *                         type: string
+ *                         example: Regular
+ *                       cost:
+ *                         type: integer
+ *                         example: 18000
+ *                       etd:
+ *                         type: string
+ *                         example: 2-3 days
  */
-router.post('/cost', shippingController.calculateCost);
+router.post("/cost", shippingController.calculateCost);
 
 module.exports = router;
