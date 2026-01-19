@@ -63,10 +63,20 @@ exports.register = async (req, res) => {
 // Login user
 exports.login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, phone, password } = req.body;
 
-    // Find user by email
-    const user = await User.findOne({ where: { email } });
+    // Find user by email or phone
+    let user;
+    const identifier = email || phone;
+
+    if (email) {
+      user = await User.findOne({ where: { email } });
+    } else if (phone) {
+      user = await User.findOne({ where: { phone } });
+    } else {
+      return res.status(400).json({ message: "Email or phone is required" });
+    }
+
     if (!user) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
@@ -76,7 +86,7 @@ exports.login = async (req, res) => {
     if (!isMatch) {
       // Log failed attempt
       await LoginAttempt.create({
-        email,
+        email: identifier,
         isSuccess: false,
         ipAddress: req.ip,
       });
@@ -85,19 +95,22 @@ exports.login = async (req, res) => {
 
     // Log successful attempt
     await LoginAttempt.create({
-      email,
+      email: identifier,
       isSuccess: true,
       ipAddress: req.ip,
     });
 
     // Generate JWT token
     const token = jwt.sign(
-      { id: user.id, email: user.email },
+      { id: user.id, email: user.email, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: "7d" },
     );
 
-    await logActivity(req, "USER_LOGIN", { userId: user.id, email });
+    await logActivity(req, "USER_LOGIN", {
+      userId: user.id,
+      email: user.email,
+    });
 
     res.status(200).json({
       message: "Login successful",
@@ -110,6 +123,7 @@ exports.login = async (req, res) => {
         phone: user.phone,
         gender: user.gender,
         address: user.address,
+        role: user.role,
       },
     });
   } catch (err) {
