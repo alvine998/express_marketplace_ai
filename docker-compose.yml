@@ -11,4 +11,7 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=4015
+      - DB_HOST=host.docker.internal
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     restart: always
