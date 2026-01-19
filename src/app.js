@@ -32,7 +32,11 @@ const voucherRoutes = require("./routes/voucherRoutes");
 const app = express();
 
 // Security Middleware
-app.use(helmet()); // Basic security headers
+app.use(
+  helmet({
+    contentSecurityPolicy: false, // Disable CSP to allow Swagger UI to load inline scripts/styles
+  }),
+);
 app.use(blockBots); // Block sensitive file scanners
 app.use(limiter); // Global rate limiter (20 req/min)
 
