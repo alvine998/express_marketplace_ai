@@ -10,22 +10,44 @@ require("dotenv").config();
 // Register a new user
 exports.register = async (req, res) => {
   try {
-    const { username, name, email, password, phone, gender, address } =
-      req.body;
+    const { name, email, password, phone, gender, address } = req.body;
 
-    // Check if user already exists
-    const existingUser = await User.findOne({ where: { email } });
-    if (existingUser) {
-      return res
-        .status(400)
-        .json({ message: "User already exists with this email" });
+    // Check if user already exists by email if provided
+    if (email) {
+      const existingUser = await User.findOne({ where: { email } });
+      if (existingUser) {
+        return res
+          .status(400)
+          .json({ message: "User already exists with this email" });
+      }
+    }
+
+    // Check if user already exists by phone if provided
+    if (phone) {
+      const existingPhone = await User.findOne({ where: { phone } });
+      if (existingPhone) {
+        return res
+          .status(400)
+          .json({ message: "User already exists with this phone number" });
+      }
+    }
+
+    // Generate random 8-character unique username
+    let username;
+    let isUnique = false;
+    while (!isUnique) {
+      username = crypto.randomBytes(4).toString("hex"); // 8 characters
+      const existingUsername = await User.findOne({ where: { username } });
+      if (!existingUsername) {
+        isUnique = true;
+      }
     }
 
     // Create new user
     const user = await User.create({
       username,
       name,
-      email,
+      email: email || null,
       password,
       phone,
       gender,
@@ -34,12 +56,15 @@ exports.register = async (req, res) => {
 
     // Generate JWT token
     const token = jwt.sign(
-      { id: user.id, email: user.email },
+      { id: user.id, email: user.email, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: "7d" },
     );
 
-    await logActivity(req, "USER_REGISTER", { userId: user.id, email });
+    await logActivity(req, "USER_REGISTER", {
+      userId: user.id,
+      email: user.email,
+    });
 
     res.status(201).json({
       message: "User registered successfully",
@@ -52,6 +77,7 @@ exports.register = async (req, res) => {
         phone: user.phone,
         gender: user.gender,
         address: user.address,
+        role: user.role,
       },
     });
   } catch (err) {

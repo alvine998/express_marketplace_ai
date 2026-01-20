@@ -16,24 +16,21 @@ const auth = require("../middleware/auth");
  *           schema:
  *             type: object
  *             required:
- *               - username
- *               - email
  *               - password
  *             properties:
- *               username:
- *                 type: string
- *                 example: johndoe
  *               name:
  *                 type: string
  *                 example: John Doe
  *               email:
  *                 type: string
+ *                 description: Optional. Unique email address.
  *                 example: johndoe@email.com
  *               password:
  *                 type: string
  *                 example: password123
  *               phone:
  *                 type: string
+ *                 description: Optional. Unique phone number.
  *                 example: "081234567890"
  *               gender:
  *                 type: string

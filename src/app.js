@@ -28,6 +28,7 @@ const chatRoutes = require("./routes/chatRoutes");
 const addressRoutes = require("./routes/addressRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const voucherRoutes = require("./routes/voucherRoutes");
+const userRoutes = require("./routes/userRoutes");
 
 const app = express();
 
@@ -101,6 +102,7 @@ app.use("/api/chat", chatRoutes);
 app.use("/api/addresses", addressRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/vouchers", voucherRoutes);
+app.use("/api/users", userRoutes);
 
 app.get("/", (req, res) => {
   res.send("Marketplace AI API is running. Visit /api-docs for documentation.");
