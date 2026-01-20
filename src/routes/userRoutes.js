@@ -159,6 +159,11 @@ router.get("/:id", auth, userController.getUserById);
  *                 enum: [male, female, other]
  *               address:
  *                 type: string
+ *               fcmTokens:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 example: ["token1", "token2"]
  *               role:
  *                 type: string
  *                 enum: [user, admin]

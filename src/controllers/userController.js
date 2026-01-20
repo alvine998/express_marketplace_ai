@@ -66,7 +66,7 @@ exports.getUserById = async (req, res) => {
 exports.updateUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, email, phone, gender, address, role } = req.body;
+    const { name, email, phone, gender, address, role, fcmTokens } = req.body;
 
     // Check if user exists
     const user = await User.findByPk(id);
@@ -87,12 +87,41 @@ exports.updateUser = async (req, res) => {
       }
     }
 
+    let finalFcmTokens = user.fcmTokens;
+    if (fcmTokens && Array.isArray(fcmTokens)) {
+      // 1. Internal deduplication
+      finalFcmTokens = [...new Set(fcmTokens)];
+
+      // 2. Global uniqueness: Remove these tokens from other users
+      const otherUsersWithTokens = await User.findAll({
+        where: {
+          id: { [Op.ne]: id },
+          // Using a simple search approach for cross-DB compatibility if possible,
+          // but for JSON arrays in Sequelize/MySQL, we can use Op.contains or Op.and with Op.or
+          // For now, let's use a robust approach: find any user where fcmTokens JSON contains any of the new tokens
+          [Op.or]: finalFcmTokens.map((token) => ({
+            fcmTokens: { [Op.like]: `%${token}%` },
+          })),
+        },
+      });
+
+      for (const otherUser of otherUsersWithTokens) {
+        const updatedTokens = otherUser.fcmTokens.filter(
+          (t) => !finalFcmTokens.includes(t),
+        );
+        if (updatedTokens.length !== otherUser.fcmTokens.length) {
+          await otherUser.update({ fcmTokens: updatedTokens });
+        }
+      }
+    }
+
     await user.update({
       name,
       email,
       phone,
       gender,
       address,
+      fcmTokens: finalFcmTokens,
       role: req.user.role === "admin" ? role : user.role, // Only admin can change role
     });
 
@@ -108,6 +137,7 @@ exports.updateUser = async (req, res) => {
         phone: user.phone,
         gender: user.gender,
         address: user.address,
+        fcmTokens: user.fcmTokens,
         role: user.role,
       },
     });
