@@ -47,10 +47,23 @@ exports.getAllSellers = async (req, res) => {
 
 exports.becomeSeller = async (req, res) => {
   try {
-    const { storeName, description, address } = req.body;
-    const userId = req.user.id;
+    const { storeName, description, address, userId } = req.body;
 
-    let seller = await Seller.findOne({ where: { userId } });
+    // Default to current user's ID
+    let targetUserId = req.user.id;
+
+    // If admin provides a userId in body, use that instead
+    if (req.user.role === "admin" && userId) {
+      targetUserId = userId;
+
+      // Validate that the target user exists
+      const targetUser = await User.findByPk(targetUserId);
+      if (!targetUser) {
+        return res.status(404).json({ message: "Target user not found" });
+      }
+    }
+
+    let seller = await Seller.findOne({ where: { userId: targetUserId } });
     if (seller) {
       return res.status(400).json({ message: "User is already a seller" });
     }
@@ -66,7 +79,7 @@ exports.becomeSeller = async (req, res) => {
     }
 
     seller = await Seller.create({
-      userId,
+      userId: targetUserId,
       storeName,
       description,
       address,

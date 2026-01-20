@@ -114,6 +114,10 @@ router.get("/", sellerController.getAllSellers);
  *               storeName:
  *                 type: string
  *                 example: Tech Store
+ *               userId:
+ *                 type: string
+ *                 example: 550e8400-e29b-41d4-a716-446655440001
+ *                 description: Explicit user ID (Admin only)
  *               description:
  *                 type: string
  *                 example: Best electronics store in town
