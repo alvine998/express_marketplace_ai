@@ -1,5 +1,6 @@
 const Voucher = require("../models/Voucher");
 const { Op } = require("sequelize");
+const { logActivity } = require("../utils/loggingUtils");
 
 /**
  * Create a new voucher
@@ -35,6 +36,11 @@ exports.createVoucher = async (req, res) => {
       quota,
       expiryDate,
       isActive,
+    });
+
+    await logActivity(req, "CREATE_VOUCHER", {
+      voucherId: voucher.id,
+      code: voucher.code,
     });
 
     res.status(201).json({ success: true, data: voucher });
@@ -97,6 +103,9 @@ exports.updateVoucher = async (req, res) => {
     }
 
     await voucher.update(updateData);
+
+    await logActivity(req, "UPDATE_VOUCHER", { voucherId: id });
+
     res.status(200).json({ success: true, data: voucher });
   } catch (error) {
     console.error("Error in updateVoucher:", error);
@@ -118,6 +127,9 @@ exports.deleteVoucher = async (req, res) => {
     }
 
     await voucher.destroy();
+
+    await logActivity(req, "DELETE_VOUCHER", { voucherId: id });
+
     res.status(200).json({ success: true, message: "Voucher deleted" });
   } catch (error) {
     console.error("Error in deleteVoucher:", error);

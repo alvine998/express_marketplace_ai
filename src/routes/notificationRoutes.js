@@ -22,6 +22,17 @@ const auth = require("../middleware/auth");
  *         schema:
  *           type: integer
  *         description: Items per page
+ *       - in: query
+ *         name: userId
+ *         schema:
+ *           type: string
+ *         description: Filter by user ID (Admin only)
+ *       - in: query
+ *         name: isRead
+ *         schema:
+ *           type: string
+ *           enum: [true, false]
+ *         description: Filter by read status
  *     responses:
  *       200:
  *         description: List of notifications
