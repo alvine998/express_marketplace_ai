@@ -43,6 +43,16 @@ const upload = require("../middleware/upload");
  *               subcategoryId:
  *                 type: string
  *                 example: 550e8400-e29b-41d4-a716-446655440000
+ *               isFlashSale:
+ *                 type: boolean
+ *                 example: true
+ *               flashSalePrice:
+ *                 type: number
+ *                 example: 10000000
+ *               flashSaleExpiry:
+ *                 type: string
+ *                 format: date-time
+ *                 example: 2026-01-21T00:00:00Z
  *               image:
  *                 type: string
  *                 format: binary
@@ -176,6 +186,44 @@ router.get("/", productController.getAllProducts);
 
 /**
  * @swagger
+ * /api/products/flash-sale:
+ *   get:
+ *     summary: Get active flash sale products
+ *     tags: [Products]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *         description: Items per page
+ *     responses:
+ *       200:
+ *         description: List of flash sale products
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 totalItems:
+ *                   type: integer
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                 totalPages:
+ *                   type: integer
+ *                 currentPage:
+ *                   type: integer
+ */
+router.get("/flash-sale", productController.getFlashSaleProducts);
+
+/**
+ * @swagger
  * /api/products/{id}:
  *   get:
  *     summary: Get product by ID
@@ -286,6 +334,13 @@ router.get("/:id", productController.getProductById);
  *               category:
  *                 type: string
  *                 example: Electronics
+ *               isFlashSale:
+ *                 type: boolean
+ *               flashSalePrice:
+ *                 type: number
+ *               flashSaleExpiry:
+ *                 type: string
+ *                 format: date-time
  *               image:
  *                 type: string
  *                 format: binary
@@ -327,7 +382,7 @@ router.put(
   "/:id",
   auth,
   upload.single("image"),
-  productController.updateProduct
+  productController.updateProduct,
 );
 
 /**

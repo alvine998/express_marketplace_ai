@@ -52,10 +52,22 @@ const Product = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    isFlashSale: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+    flashSalePrice: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: true,
+    },
+    flashSaleExpiry: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
   },
   {
     tableName: "products",
-  }
+  },
 );
 
 // Associations
