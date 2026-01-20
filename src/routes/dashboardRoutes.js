@@ -156,4 +156,40 @@ router.get("/seller/summary", auth, dashboardController.getSellerSummary);
  */
 router.get("/analytics", auth, dashboardController.getAnalytics);
 
+/**
+ * @swagger
+ * /api/dashboard/home-counts:
+ *   get:
+ *     summary: Get unread counts for home screen (Chats, Notifications, Cart)
+ *     tags: [Dashboard]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Home screen counts
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     unreadNotifications:
+ *                       type: integer
+ *                       example: 5
+ *                     cartItems:
+ *                       type: integer
+ *                       example: 3
+ *                     unreadChats:
+ *                       type: integer
+ *                       example: 2
+ *       401:
+ *         description: Unauthorized
+ */
+router.get("/home-counts", auth, dashboardController.getHomeCounts);
+
 module.exports = router;

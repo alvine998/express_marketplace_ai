@@ -4,6 +4,10 @@ const Seller = require("../models/Seller");
 const Product = require("../models/Product");
 const TransactionDetail = require("../models/TransactionDetail");
 const Category = require("../models/Category");
+const ChatMessage = require("../models/ChatMessage");
+const ChatRoom = require("../models/ChatRoom");
+const Notification = require("../models/Notification");
+const CartItem = require("../models/CartItem");
 const { Op } = require("sequelize");
 const sequelize = require("../config/database");
 
@@ -145,6 +149,56 @@ exports.getAnalytics = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in getAnalytics:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
+
+/**
+ * Get Home Screen Counts (Unread chats, notifications, cart items)
+ * @param {Object} req
+ * @param {Object} res
+ */
+exports.getHomeCounts = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // Count unread notifications
+    const unreadNotificationCount = await Notification.count({
+      where: { userId, isRead: false },
+    });
+
+    // Count cart items
+    const cartItemCount = await CartItem.count({
+      where: { userId },
+    });
+
+    // Count unread chats (where user is participant and not the sender)
+    const unreadChatCount = await ChatMessage.count({
+      where: {
+        isRead: false,
+        senderId: { [Op.ne]: userId },
+      },
+      include: [
+        {
+          model: ChatRoom,
+          as: "room",
+          where: {
+            [Op.or]: [{ participant1Id: userId }, { participant2Id: userId }],
+          },
+        },
+      ],
+    });
+
+    res.status(200).json({
+      success: true,
+      data: {
+        unreadNotifications: unreadNotificationCount,
+        cartItems: cartItemCount,
+        unreadChats: unreadChatCount,
+      },
+    });
+  } catch (error) {
+    console.error("Error in getHomeCounts:", error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
