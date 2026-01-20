@@ -7,6 +7,95 @@ const upload = require("../middleware/upload");
 
 /**
  * @swagger
+ * /api/sellers:
+ *   get:
+ *     summary: Get all sellers with pagination
+ *     tags: [Sellers]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *         description: Items per page
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search by store name
+ *       - in: query
+ *         name: isVerified
+ *         schema:
+ *           type: boolean
+ *         description: Filter by verified status
+ *       - in: query
+ *         name: isOfficial
+ *         schema:
+ *           type: boolean
+ *         description: Filter by official status
+ *     responses:
+ *       200:
+ *         description: List of sellers
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 totalItems:
+ *                   type: integer
+ *                   example: 50
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         example: 550e8400-e29b-41d4-a716-446655440000
+ *                       storeName:
+ *                         type: string
+ *                         example: Tech Store
+ *                       description:
+ *                         type: string
+ *                         example: Best electronics store in town
+ *                       address:
+ *                         type: string
+ *                         example: Jl. Sudirman No. 123, Jakarta
+ *                       logoUrl:
+ *                         type: string
+ *                         example: https://storage.googleapis.com/bucket/logo.jpg
+ *                       isVerified:
+ *                         type: boolean
+ *                         example: true
+ *                       isOfficial:
+ *                         type: boolean
+ *                         example: false
+ *                       user:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                           username:
+ *                             type: string
+ *                             example: johndoe
+ *                           email:
+ *                             type: string
+ *                             example: johndoe@email.com
+ *                 totalPages:
+ *                   type: integer
+ *                   example: 5
+ *                 currentPage:
+ *                   type: integer
+ *                   example: 1
+ */
+router.get("/", sellerController.getAllSellers);
+
+/**
+ * @swagger
  * /api/sellers/register:
  *   post:
  *     summary: Register as a seller
@@ -78,7 +167,7 @@ router.post(
   "/register",
   auth,
   upload.single("logo"),
-  sellerController.becomeSeller
+  sellerController.becomeSeller,
 );
 
 /**
@@ -335,7 +424,7 @@ router.patch(
   "/:id/official",
   auth,
   admin,
-  sellerController.adminToggleOfficial
+  sellerController.adminToggleOfficial,
 );
 
 module.exports = router;
