@@ -63,6 +63,22 @@ router.post("/send", auth, chatController.sendMessage);
  *     tags: [Chat]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *         description: Items per page
+ *       - in: query
+ *         name: userId
+ *         schema:
+ *           type: string
+ *         description: Filter by user ID (Admin only)
  *     responses:
  *       200:
  *         description: List of chat rooms

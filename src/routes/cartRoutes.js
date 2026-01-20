@@ -65,6 +65,17 @@ router.post("/", auth, cartController.addToCart);
  *     tags: [Cart]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: userId
+ *         schema:
+ *           type: string
+ *         description: Filter by user ID (Admin only)
+ *       - in: query
+ *         name: productId
+ *         schema:
+ *           type: string
+ *         description: Filter by product ID
  *     responses:
  *       200:
  *         description: List of cart items
