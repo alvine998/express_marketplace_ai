@@ -41,7 +41,7 @@ app.use(blockBots); // Block sensitive file scanners
 app.use(limiter); // Global rate limiter (20 req/min)
 
 // Middleware
-app.use(cors()); // Allow all origins (*)
+app.use(cors({ origin: "*" })); // Allow all origins (*)
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
