@@ -37,6 +37,31 @@ exports.getAllUsers = async (req, res) => {
   }
 };
 
+// Get user by ID
+exports.getUserById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Authorization check: Only admin can view other users, unless viewing own profile
+    if (req.user.role !== "admin" && req.user.id !== id) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+
+    const user = await User.findByPk(id, {
+      attributes: { exclude: ["password"] },
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error fetching user" });
+  }
+};
+
 // Update user
 exports.updateUser = async (req, res) => {
   try {

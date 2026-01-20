@@ -80,6 +80,53 @@ router.get("/", auth, admin, userController.getAllUsers);
 /**
  * @swagger
  * /api/users/{id}:
+ *   get:
+ *     summary: Get user by ID
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: User profile retrieved
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                 username:
+ *                   type: string
+ *                 name:
+ *                   type: string
+ *                 email:
+ *                   type: string
+ *                 phone:
+ *                   type: string
+ *                 gender:
+ *                   type: string
+ *                 address:
+ *                   type: string
+ *                 role:
+ *                   type: string
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Not authorized to view this user
+ *       404:
+ *         description: User not found
+ */
+router.get("/:id", auth, userController.getUserById);
+
+/**
+ * @swagger
+ * /api/users/{id}:
  *   put:
  *     summary: Update user details
  *     tags: [Users]

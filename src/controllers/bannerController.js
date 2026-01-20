@@ -1,15 +1,15 @@
-const Banner = require('../models/Banner');
-const { uploadImageToFirebase } = require('../utils/firebaseUtils');
-const { getPagination, getPagingData } = require('../utils/paginationUtils');
-const { logActivity } = require('../utils/loggingUtils');
+const Banner = require("../models/Banner");
+const { uploadImageToFirebase } = require("../utils/firebaseUtils");
+const { getPagination, getPagingData } = require("../utils/paginationUtils");
+const { logActivity } = require("../utils/loggingUtils");
 
 exports.createBanner = async (req, res) => {
   try {
-    const { title, targetUrl } = req.body;
+    const { title, targetUrl, type } = req.body;
     let imageUrl = null;
 
     if (!req.file) {
-      return res.status(400).json({ message: 'Banner image is required' });
+      return res.status(400).json({ message: "Banner image is required" });
     }
 
     imageUrl = await uploadImageToFirebase(req.file);
@@ -18,44 +18,53 @@ exports.createBanner = async (req, res) => {
       title,
       imageUrl,
       targetUrl,
+      type: type || "headline",
     });
 
-    await logActivity(req, 'CREATE_BANNER', { bannerId: banner.id, title: banner.title });
+    await logActivity(req, "CREATE_BANNER", {
+      bannerId: banner.id,
+      title: banner.title,
+    });
 
     res.status(201).json(banner);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Server error during banner creation' });
+    res.status(500).json({ message: "Server error during banner creation" });
   }
 };
 
 exports.getAllBanners = async (req, res) => {
   try {
-    const { page, limit } = req.query;
+    const { page, limit, type } = req.query;
     const { limit: l, offset } = getPagination(page, limit);
 
+    const whereCondition = { isActive: true };
+    if (type) {
+      whereCondition.type = type;
+    }
+
     const data = await Banner.findAndCountAll({
-      where: { isActive: true },
+      where: whereCondition,
       limit: l,
       offset,
-      order: [['createdAt', 'DESC']],
+      order: [["createdAt", "DESC"]],
     });
 
     const response = getPagingData(data, page, l);
     res.status(200).json(response);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Server error retrieving banners' });
+    res.status(500).json({ message: "Server error retrieving banners" });
   }
 };
 
 exports.updateBanner = async (req, res) => {
   try {
-    const { title, targetUrl, isActive } = req.body;
+    const { title, targetUrl, isActive, type } = req.body;
     let banner = await Banner.findByPk(req.params.id);
 
     if (!banner) {
-      return res.status(404).json({ message: 'Banner not found' });
+      return res.status(404).json({ message: "Banner not found" });
     }
 
     let imageUrl = banner.imageUrl;
@@ -67,15 +76,19 @@ exports.updateBanner = async (req, res) => {
       title,
       targetUrl,
       isActive,
+      type: type || banner.type,
       imageUrl,
     });
 
-    await logActivity(req, 'UPDATE_BANNER', { bannerId: banner.id, title: banner.title });
+    await logActivity(req, "UPDATE_BANNER", {
+      bannerId: banner.id,
+      title: banner.title,
+    });
 
     res.status(200).json(banner);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Server error updating banner' });
+    res.status(500).json({ message: "Server error updating banner" });
   }
 };
 
@@ -84,16 +97,16 @@ exports.deleteBanner = async (req, res) => {
     const banner = await Banner.findByPk(req.params.id);
 
     if (!banner) {
-      return res.status(404).json({ message: 'Banner not found' });
+      return res.status(404).json({ message: "Banner not found" });
     }
 
     await banner.destroy();
-    
-    await logActivity(req, 'DELETE_BANNER', { bannerId: req.params.id });
 
-    res.status(200).json({ message: 'Banner deleted successfully' });
+    await logActivity(req, "DELETE_BANNER", { bannerId: req.params.id });
+
+    res.status(200).json({ message: "Banner deleted successfully" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Server error deleting banner' });
+    res.status(500).json({ message: "Server error deleting banner" });
   }
 };

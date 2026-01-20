@@ -27,6 +27,10 @@ const upload = require("../middleware/upload");
  *               targetUrl:
  *                 type: string
  *                 example: https://example.com/sale
+ *               type:
+ *                 type: string
+ *                 enum: [promo, headline]
+ *                 example: promo
  *               image:
  *                 type: string
  *                 format: binary
@@ -80,6 +84,13 @@ router.post("/", auth, upload.single("image"), bannerController.createBanner);
  *   get:
  *     summary: Get all active banners
  *     tags: [Banners]
+ *     parameters:
+ *       - in: query
+ *         name: type
+ *         schema:
+ *           type: string
+ *           enum: [promo, headline]
+ *         description: Filter by banner type
  *     responses:
  *       200:
  *         description: List of active banners
@@ -140,6 +151,10 @@ router.get("/", bannerController.getAllBanners);
  *               isActive:
  *                 type: boolean
  *                 example: true
+ *               type:
+ *                 type: string
+ *                 enum: [promo, headline]
+ *                 example: headline
  *               image:
  *                 type: string
  *                 format: binary
