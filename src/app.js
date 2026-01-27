@@ -29,6 +29,12 @@ const addressRoutes = require("./routes/addressRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const voucherRoutes = require("./routes/voucherRoutes");
 const userRoutes = require("./routes/userRoutes");
+const popupPromoRoutes = require("./routes/popupPromoRoutes");
+const aiChatbotOrderRoutes = require("./routes/aiChatbotOrderRoutes");
+const broadcastNotificationRoutes = require("./routes/broadcastNotificationRoutes");
+const rolePermissionRoutes = require("./routes/rolePermissionRoutes");
+const appConfigRoutes = require("./routes/appConfigRoutes");
+const faqRoutes = require("./routes/faqRoutes");
 
 const app = express();
 
@@ -103,6 +109,12 @@ app.use("/api/addresses", addressRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/vouchers", voucherRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/popup-promos", popupPromoRoutes);
+app.use("/api/ai-chatbot-orders", aiChatbotOrderRoutes);
+app.use("/api/notifications/broadcast", broadcastNotificationRoutes);
+app.use("/api/roles", rolePermissionRoutes);
+app.use("/api/app-config", appConfigRoutes);
+app.use("/api/faqs", faqRoutes);
 
 app.get("/", (req, res) => {
   res.send("Marketplace AI API is running. Visit /api-docs for documentation.");

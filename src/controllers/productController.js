@@ -1,4 +1,5 @@
 const Product = require("../models/Product");
+const { Op } = require("sequelize");
 const { uploadImageToFirebase } = require("../utils/firebaseUtils");
 const { getPagination, getPagingData } = require("../utils/paginationUtils");
 const { logActivity } = require("../utils/loggingUtils");
@@ -51,12 +52,15 @@ exports.createProduct = async (req, res) => {
 
 exports.getAllProducts = async (req, res) => {
   try {
-    const { page, limit, subcategoryId, category } = req.query;
+    const { page, limit, subcategoryId, category, search } = req.query;
     const { limit: l, offset } = getPagination(page, limit);
 
     const where = {};
     if (subcategoryId) where.subcategoryId = subcategoryId;
     if (category) where.category = category;
+    if (search) {
+      where.name = { [Op.like]: `%${search}%` };
+    }
 
     const data = await Product.findAndCountAll({
       where,

@@ -9,14 +9,14 @@ const { logActivity } = require("../utils/loggingUtils");
 
 exports.createCategory = async (req, res) => {
   try {
-    const { name } = req.body;
+    const { name, isHighlight } = req.body;
     let imageUrl = null;
 
     if (req.file) {
       imageUrl = await uploadImageToFirebase(req.file);
     }
 
-    const category = await Category.create({ name, imageUrl });
+    const category = await Category.create({ name, imageUrl, isHighlight });
 
     await logActivity(req, "CREATE_CATEGORY", {
       categoryId: category.id,
@@ -32,12 +32,15 @@ exports.createCategory = async (req, res) => {
 
 exports.getAllCategories = async (req, res) => {
   try {
-    const { page, limit, search } = req.query;
+    const { page, limit, search, isHighlight } = req.query;
     const { limit: l, offset } = getPagination(page, limit);
 
     const whereClause = {};
     if (search && search.length > 2) {
       whereClause.name = { [Op.like]: `%${search}%` };
+    }
+    if (isHighlight !== undefined) {
+      whereClause.isHighlight = isHighlight === "true" || isHighlight === true;
     }
 
     const data = await Category.findAndCountAll({
@@ -72,7 +75,7 @@ exports.getCategoryById = async (req, res) => {
 exports.updateCategory = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name } = req.body;
+    const { name, isHighlight } = req.body;
 
     const category = await Category.findByPk(id);
     if (!category) {
@@ -82,6 +85,9 @@ exports.updateCategory = async (req, res) => {
     // Update name if provided
     if (name) {
       category.name = name;
+    }
+    if (isHighlight !== undefined) {
+      category.isHighlight = isHighlight === "true" || isHighlight === true;
     }
 
     // Update image if new file provided

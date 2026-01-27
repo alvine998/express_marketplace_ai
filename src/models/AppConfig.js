@@ -1,31 +1,28 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/database");
 
-const Category = sequelize.define(
-  "Category",
+const AppConfig = sequelize.define(
+  "AppConfig",
   {
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
-    name: {
+    key: {
       type: DataTypes.STRING,
       allowNull: false,
       unique: true,
     },
-    imageUrl: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    isHighlight: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false,
+    value: {
+      type: DataTypes.TEXT,
+      allowNull: false,
     },
   },
   {
-    tableName: "categories",
+    tableName: "app_configs",
+    timestamps: true,
   },
 );
 
-module.exports = Category;
+module.exports = AppConfig;

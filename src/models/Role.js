@@ -1,8 +1,8 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/database");
 
-const Category = sequelize.define(
-  "Category",
+const Role = sequelize.define(
+  "Role",
   {
     id: {
       type: DataTypes.UUID,
@@ -14,18 +14,15 @@ const Category = sequelize.define(
       allowNull: false,
       unique: true,
     },
-    imageUrl: {
-      type: DataTypes.STRING,
+    description: {
+      type: DataTypes.TEXT,
       allowNull: true,
-    },
-    isHighlight: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false,
     },
   },
   {
-    tableName: "categories",
+    tableName: "roles",
+    timestamps: true,
   },
 );
 
-module.exports = Category;
+module.exports = Role;
