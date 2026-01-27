@@ -46,13 +46,10 @@ const upload = require("../middleware/upload");
  *                 imageUrl:
  *                   type: string
  *                   example: https://storage.googleapis.com/bucket/feed.jpg
- *                 likesCount:
- *                   type: integer
- *                   example: 0
- *                 commentsCount:
- *                   type: integer
- *                   example: 0
  *                 createdAt:
+ *                   type: string
+ *                   format: date-time
+ *                 updatedAt:
  *                   type: string
  *                   format: date-time
  *       401:
@@ -102,12 +99,29 @@ router.post("/", auth, upload.single("image"), feedController.createPost);
  *                       imageUrl:
  *                         type: string
  *                         example: https://storage.googleapis.com/bucket/feed.jpg
- *                       likesCount:
- *                         type: integer
- *                         example: 25
- *                       commentsCount:
- *                         type: integer
- *                         example: 10
+ *                       likes:
+ *                         type: array
+ *                         items:
+ *                           type: object
+ *                           properties:
+ *                             id:
+ *                               type: string
+ *                             userId:
+ *                               type: string
+ *                       comments:
+ *                         type: array
+ *                         items:
+ *                           type: object
+ *                           properties:
+ *                             id:
+ *                               type: string
+ *                             content:
+ *                               type: string
+ *                             user:
+ *                               type: object
+ *                               properties:
+ *                                 username:
+ *                                   type: string
  *                       user:
  *                         type: object
  *                         properties:
@@ -153,12 +167,6 @@ router.get("/", feedController.getAllPosts);
  *                 message:
  *                   type: string
  *                   example: Post liked
- *                 isLiked:
- *                   type: boolean
- *                   example: true
- *                 likesCount:
- *                   type: integer
- *                   example: 26
  *       401:
  *         description: Unauthorized
  *       404:
