@@ -1,12 +1,12 @@
-const axios = require('axios');
-const NodeCache = require('node-cache');
-require('dotenv').config();
+const axios = require("axios");
+const redis = require("../config/redis");
+require("dotenv").config();
 
-// Cache for 24 hours
-const myCache = new NodeCache({ stdTTL: 86400 });
+// Cache TTL: 24 hours in seconds
+const CACHE_TTL = 86400;
 
 const rajaOngkir = axios.create({
-  baseURL: 'https://api.rajaongkir.com/starter',
+  baseURL: "https://api.rajaongkir.com/starter",
   headers: {
     key: process.env.RAJAONGKIR_API_KEY,
   },
@@ -14,49 +14,81 @@ const rajaOngkir = axios.create({
 
 exports.getProvinces = async () => {
   try {
-    const cachedProvinces = myCache.get('provinces');
-    if (cachedProvinces) return cachedProvinces;
+    const cacheKey = "rajaongkir:provinces";
+    const cachedData = await redis.get(cacheKey);
+    if (cachedData) {
+      console.log("Cache hit for provinces");
+      return JSON.parse(cachedData);
+    }
 
-    const response = await rajaOngkir.get('/province');
+    console.log("Cache miss for provinces, fetching from API...");
+    const response = await rajaOngkir.get("/province");
     const results = response.data.rajaongkir.results;
-    
-    myCache.set('provinces', results);
+
+    await redis.setex(cacheKey, CACHE_TTL, JSON.stringify(results));
     return results;
   } catch (error) {
-    console.error('RajaOngkir Province Error:', error.response?.data || error.message);
+    console.error(
+      "RajaOngkir Province Error:",
+      error.response?.data || error.message,
+    );
     throw error;
   }
 };
 
 exports.getCities = async (provinceId) => {
   try {
-    const cacheKey = `cities_${provinceId}`;
-    const cachedCities = myCache.get(cacheKey);
-    if (cachedCities) return cachedCities;
+    const cacheKey = `rajaongkir:cities:${provinceId}`;
+    const cachedData = await redis.get(cacheKey);
+    if (cachedData) {
+      console.log(`Cache hit for cities of province ${provinceId}`);
+      return JSON.parse(cachedData);
+    }
 
+    console.log(
+      `Cache miss for cities of province ${provinceId}, fetching from API...`,
+    );
     const response = await rajaOngkir.get(`/city?province=${provinceId}`);
     const results = response.data.rajaongkir.results;
 
-    myCache.set(cacheKey, results);
+    await redis.setex(cacheKey, CACHE_TTL, JSON.stringify(results));
     return results;
   } catch (error) {
-    console.error('RajaOngkir City Error:', error.response?.data || error.message);
+    console.error(
+      "RajaOngkir City Error:",
+      error.response?.data || error.message,
+    );
     throw error;
   }
 };
 
 exports.calculateCost = async (origin, destination, weight, courier) => {
   try {
-    // We don't cache cost as it can vary, but we can if needed
-    const response = await rajaOngkir.post('/cost', {
+    // Optional: cache shipping costs for short periods (e.g., 1 hour)
+    const cacheKey = `rajaongkir:cost:${origin}:${destination}:${weight}:${courier}`;
+    const cachedData = await redis.get(cacheKey);
+    if (cachedData) {
+      console.log("Cache hit for shipping cost");
+      return JSON.parse(cachedData);
+    }
+
+    console.log("Cache miss for shipping cost, fetching from API...");
+    const response = await rajaOngkir.post("/cost", {
       origin,
       destination,
       weight,
       courier,
     });
-    return response.data.rajaongkir.results;
+    const results = response.data.rajaongkir.results;
+
+    // Cache for 1 hour
+    await redis.setex(cacheKey, 3600, JSON.stringify(results));
+    return results;
   } catch (error) {
-    console.error('RajaOngkir Cost Error:', error.response?.data || error.message);
+    console.error(
+      "RajaOngkir Cost Error:",
+      error.response?.data || error.message,
+    );
     throw error;
   }
 };
