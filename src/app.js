@@ -35,6 +35,7 @@ const broadcastNotificationRoutes = require("./routes/broadcastNotificationRoute
 const rolePermissionRoutes = require("./routes/rolePermissionRoutes");
 const appConfigRoutes = require("./routes/appConfigRoutes");
 const faqRoutes = require("./routes/faqRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 
 const app = express();
 
@@ -115,6 +116,7 @@ app.use("/api/notifications/broadcast", broadcastNotificationRoutes);
 app.use("/api/roles", rolePermissionRoutes);
 app.use("/api/app-config", appConfigRoutes);
 app.use("/api/faqs", faqRoutes);
+app.use("/api/admin", adminRoutes);
 
 app.get("/", (req, res) => {
   res.send("Marketplace AI API is running. Visit /api-docs for documentation.");
