@@ -48,10 +48,6 @@ const Seller = sequelize.define(
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
-    status: {
-      type: DataTypes.ENUM("pending", "approved", "rejected"),
-      defaultValue: "pending",
-    },
   },
   {
     tableName: "sellers",
