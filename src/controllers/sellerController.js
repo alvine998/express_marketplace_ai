@@ -1,5 +1,8 @@
 const Seller = require("../models/Seller");
 const User = require("../models/User");
+const Product = require("../models/Product");
+const Transaction = require("../models/Transaction");
+const TransactionDetail = require("../models/TransactionDetail");
 const { Op } = require("sequelize");
 const { uploadImageToFirebase } = require("../utils/firebaseUtils");
 const { logActivity } = require("../utils/loggingUtils");
@@ -197,5 +200,59 @@ exports.adminToggleOfficial = async (req, res) => {
     res.status(200).json(seller);
   } catch (error) {
     res.status(500).json({ message: "Error toggling official status" });
+  }
+};
+
+exports.getDashboardStats = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const seller = await Seller.findOne({ where: { userId } });
+
+    if (!seller) {
+      return res.status(404).json({ message: "Seller profile not found" });
+    }
+
+    // 1. Total Products
+    const totalProducts = await Product.count({ where: { sellerId: userId } });
+
+    // 2. Sales & Orders
+    // Find all products owned by seller
+    const products = await Product.findAll({
+      where: { sellerId: userId },
+      attributes: ["id"],
+    });
+    const productIds = products.map((p) => p.id);
+
+    // Find transaction details for these products where transaction is completed
+    const transactionDetails = await TransactionDetail.findAll({
+      where: { productId: { [Op.in]: productIds } },
+      include: [
+        {
+          model: Transaction,
+          as: "transaction",
+          where: { status: "completed" },
+          attributes: [], // We only need it for the where clause
+        },
+      ],
+    });
+
+    let totalSales = 0;
+    const uniqueOrderIds = new Set();
+
+    transactionDetails.forEach((detail) => {
+      totalSales += parseFloat(detail.price) * detail.quantity;
+      uniqueOrderIds.add(detail.transactionId);
+    });
+
+    const totalOrders = uniqueOrderIds.size;
+
+    res.status(200).json({
+      totalProducts,
+      totalSales,
+      totalOrders,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error fetching dashboard stats" });
   }
 };

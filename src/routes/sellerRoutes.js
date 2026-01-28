@@ -431,4 +431,35 @@ router.patch(
   sellerController.adminToggleOfficial,
 );
 
+/**
+ * @swagger
+ * /api/sellers/dashboard:
+ *   get:
+ *     summary: Get seller dashboard statistics
+ *     tags: [Sellers]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Dashboard statistics
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 totalProducts:
+ *                   type: integer
+ *                   example: 15
+ *                 totalSales:
+ *                   type: number
+ *                   format: float
+ *                   example: 1500000.00
+ *                 totalOrders:
+ *                   type: integer
+ *                   example: 5
+ *       404:
+ *         description: Seller profile not found
+ */
+router.get("/dashboard", auth, sellerController.getDashboardStats);
+
 module.exports = router;
