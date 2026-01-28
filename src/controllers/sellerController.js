@@ -205,7 +205,13 @@ exports.adminToggleOfficial = async (req, res) => {
 
 exports.getDashboardStats = async (req, res) => {
   try {
-    const userId = req.user.id;
+    let userId = req.user.id;
+
+    // Allow manual override via query param (e.g., ?userId=...)
+    if (req.query.userId) {
+      userId = req.query.userId;
+    }
+
     const seller = await Seller.findOne({ where: { userId } });
 
     if (!seller) {
