@@ -279,6 +279,38 @@ router.get("/:id", sellerController.getSellerById);
 
 /**
  * @swagger
+ * /api/sellers/{id}/products:
+ *   get:
+ *     summary: Get products list for a seller
+ *     tags: [Sellers]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: List of products
+ *       404:
+ *         description: Seller not found
+ */
+router.get("/:id/products", sellerController.getSellerProducts);
+
+/**
+ * @swagger
  * /api/sellers/me:
  *   put:
  *     summary: Update own seller profile

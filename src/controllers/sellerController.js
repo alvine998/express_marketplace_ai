@@ -262,3 +262,36 @@ exports.getDashboardStats = async (req, res) => {
     res.status(500).json({ message: "Error fetching dashboard stats" });
   }
 };
+
+exports.getSellerProducts = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { page, limit, search } = req.query;
+    const { limit: l, offset } = getPagination(page, limit);
+
+    // 1. Find Seller to get the User ID (because Products are linked to User)
+    const seller = await Seller.findByPk(id);
+    if (!seller) {
+      return res.status(404).json({ message: "Seller not found" });
+    }
+
+    const whereCondition = { sellerId: seller.userId };
+    if (search) {
+      whereCondition.name = { [Op.like]: `%${search}%` };
+    }
+
+    const data = await Product.findAndCountAll({
+      where: whereCondition,
+      limit: l,
+      offset,
+      order: [["createdAt", "DESC"]],
+      include: ["subcategory"], // Include subcategory details if needed
+    });
+
+    const response = getPagingData(data, page, l);
+    res.status(200).json(response);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error fetching seller products" });
+  }
+};
