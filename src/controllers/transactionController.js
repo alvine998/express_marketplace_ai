@@ -2,6 +2,7 @@ const Transaction = require("../models/Transaction");
 const TransactionDetail = require("../models/TransactionDetail");
 const CartItem = require("../models/CartItem");
 const Product = require("../models/Product");
+const Voucher = require("../models/Voucher");
 const sequelize = require("../config/database");
 const { getPagination, getPagingData } = require("../utils/paginationUtils");
 const { logActivity } = require("../utils/loggingUtils");
@@ -30,24 +31,78 @@ exports.checkout = async (req, res) => {
       // Basic stock check
       if (item.product.stock < item.quantity) {
         await t.rollback();
-        return res
-          .status(400)
-          .json({
-            message: `Insufficient stock for product: ${item.product.name}`,
-          });
+        return res.status(400).json({
+          message: `Insufficient stock for product: ${item.product.name}`,
+        });
       }
     }
 
-    const totalAmount = parseFloat(itemsTotal) + parseFloat(shippingCost);
+    const totalAmountBeforeDiscount =
+      parseFloat(itemsTotal) + parseFloat(shippingCost);
+    let finalTotalAmount = totalAmountBeforeDiscount;
+    let discountAmount = 0;
+    let usedVoucher = null;
+
+    if (req.body.voucherCode) {
+      const voucher = await Voucher.findOne({
+        where: { code: req.body.voucherCode, isActive: true },
+        transaction: t, // Lock if needed, or just read
+      });
+
+      if (!voucher) {
+        await t.rollback();
+        return res
+          .status(404)
+          .json({ message: "Voucher not found or inactive" });
+      }
+
+      // Validate Expiry
+      if (voucher.expiryDate && new Date() > new Date(voucher.expiryDate)) {
+        await t.rollback();
+        return res.status(400).json({ message: "Voucher has expired" });
+      }
+
+      // Validate Quota
+      if (voucher.quota !== -1 && voucher.quota <= 0) {
+        await t.rollback();
+        return res.status(400).json({ message: "Voucher is out of stock" });
+      }
+
+      // Validate Min Transaction
+      if (itemsTotal < voucher.minTransaction) {
+        await t.rollback();
+        return res.status(400).json({
+          message: `Minimum transaction of ${voucher.minTransaction} required`,
+        });
+      }
+
+      // Calculate Discount
+      if (voucher.valueType === "percentage") {
+        let discount = (itemsTotal * voucher.value) / 100;
+        if (voucher.maxLimit) {
+          discount = Math.min(discount, voucher.maxLimit);
+        }
+        discountAmount = discount;
+      } else {
+        discountAmount = voucher.value;
+      }
+
+      // Ensure discount doesn't exceed total
+      discountAmount = Math.min(discountAmount, totalAmountBeforeDiscount);
+      finalTotalAmount = totalAmountBeforeDiscount - discountAmount;
+      usedVoucher = voucher;
+    }
 
     const transaction = await Transaction.create(
       {
         userId,
-        totalAmount,
+        totalAmount: finalTotalAmount,
         shippingCost,
         paymentMethod,
         shippingAddress,
         status: "pending",
+        voucherCode: usedVoucher ? usedVoucher.code : null,
+        discountAmount: discountAmount,
       },
       { transaction: t },
     );
@@ -68,12 +123,19 @@ exports.checkout = async (req, res) => {
         { transaction: t },
       );
     }
+
+    // Decrement Voucher Quota
+    if (usedVoucher && usedVoucher.quota !== -1) {
+      await usedVoucher.decrement("quota", { transaction: t });
+    }
+
     await CartItem.destroy({ where: { userId }, transaction: t });
 
     await t.commit();
     await logActivity(req, "CHECKOUT", {
       transactionId: transaction.id,
-      totalAmount,
+      totalAmount: finalTotalAmount,
+      voucherCode: usedVoucher ? usedVoucher.code : null,
     });
 
     res.status(201).json(transaction);
