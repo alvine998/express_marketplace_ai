@@ -293,17 +293,67 @@ router.get("/:id", sellerController.getSellerById);
  *         name: page
  *         schema:
  *           type: integer
+ *         description: Page number
  *       - in: query
  *         name: limit
  *         schema:
  *           type: integer
+ *         description: Items per page
  *       - in: query
  *         name: search
  *         schema:
  *           type: string
+ *         description: Search by product name
  *     responses:
  *       200:
  *         description: List of products
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 totalItems:
+ *                   type: integer
+ *                   example: 50
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         example: 550e8400-e29b-41d4-a716-446655440000
+ *                       name:
+ *                         type: string
+ *                         example: iPhone 15 Pro
+ *                       description:
+ *                         type: string
+ *                         example: Latest Apple smartphone
+ *                       price:
+ *                         type: number
+ *                         example: 15000000
+ *                       stock:
+ *                         type: integer
+ *                         example: 50
+ *                       category:
+ *                         type: string
+ *                         example: Electronics
+ *                       imageUrl:
+ *                         type: string
+ *                         example: https://storage.googleapis.com/bucket/image.jpg
+ *                       subcategory:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                           name:
+ *                             type: string
+ *                 totalPages:
+ *                   type: integer
+ *                   example: 5
+ *                 currentPage:
+ *                   type: integer
+ *                   example: 1
  *       404:
  *         description: Seller not found
  */
